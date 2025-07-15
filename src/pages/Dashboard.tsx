@@ -113,6 +113,9 @@ const Dashboard = () => {
           </Carousel>
         </div>
 
+        
+
+        {/* Summary Cards */}
         {/* Welcome Section */}
         <div className="text-center py-4">
           <h2 className="text-lg font-semibold text-gray-800 mb-1">
@@ -120,8 +123,6 @@ const Dashboard = () => {
           </h2>
           <p className="text-sm text-muted-foreground">Keep up the great work!</p>
         </div>
-
-        {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-4">
           {summaryCards.map((card, index) => (
             <Card 
