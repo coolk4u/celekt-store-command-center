@@ -5,15 +5,15 @@ import { cn } from '@/lib/utils';
 
 const BottomNavigation = () => {
   const navItems = [
-    { to: '/', icon: Home, label: 'Dashboard' },
+    { to: '/', icon: Home, label: 'Home' },
     { to: '/audit', icon: ClipboardCheck, label: 'Audit' },
     { to: '/issues', icon: AlertTriangle, label: 'Issues' },
-    { to: '/announcements', icon: Megaphone, label: 'Announcements' },
+    { to: '/announcements', icon: Megaphone, label: 'News' },
     { to: '/more', icon: MoreHorizontal, label: 'More' },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-2 z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 px-4 py-2 z-50 shadow-lg">
       <div className="max-w-md mx-auto">
         <div className="flex justify-between items-center">
           {navItems.map(({ to, icon: Icon, label }) => (
@@ -22,10 +22,10 @@ const BottomNavigation = () => {
               to={to}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-col items-center justify-center p-2 rounded-lg transition-colors min-w-[60px]",
+                  "flex flex-col items-center justify-center p-3 rounded-2xl transition-all duration-200 min-w-[60px]",
                   isActive
-                    ? "text-red-600 bg-red-50"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                    ? "text-primary bg-red-50 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                 )
               }
             >

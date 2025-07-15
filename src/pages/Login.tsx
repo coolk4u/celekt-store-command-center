@@ -38,36 +38,41 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-600 rounded-full mb-4">
-            <Smartphone className="h-8 w-8 text-white" />
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary to-red-600 rounded-3xl mb-6 shadow-lg">
+            <Smartphone className="h-10 w-10 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Celekt Store Manager</h1>
-          <p className="text-gray-600 mt-2">Manage your store operations</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Celekt Store</h1>
+          <p className="text-muted-foreground">Store Manager Portal</p>
         </div>
 
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-center">Welcome Back</CardTitle>
+        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-center text-xl font-semibold">Welcome Back</CardTitle>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <CardContent className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="employeeId">Employee ID / Mobile</Label>
+                <Label htmlFor="employeeId" className="text-sm font-medium text-gray-700">
+                  Employee ID / Mobile
+                </Label>
                 <Input
                   id="employeeId"
                   type="text"
                   placeholder="Enter your Employee ID"
                   value={employeeId}
                   onChange={(e) => setEmployeeId(e.target.value)}
+                  className="h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                  Password
+                </Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -75,6 +80,7 @@ const Login = () => {
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    className="h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20 pr-10"
                     required
                   />
                   <button
@@ -93,7 +99,7 @@ const Login = () => {
 
               <Button
                 type="submit"
-                className="w-full bg-red-600 hover:bg-red-700"
+                className="w-full h-12 bg-gradient-to-r from-primary to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-xl shadow-lg"
                 disabled={isLoading}
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
@@ -102,7 +108,7 @@ const Login = () => {
               <div className="text-center">
                 <button
                   type="button"
-                  className="text-sm text-red-600 hover:underline"
+                  className="text-sm text-primary hover:text-red-700 font-medium"
                   onClick={() => toast.info('Please contact your administrator')}
                 >
                   Forgot Password?
@@ -110,9 +116,9 @@ const Login = () => {
               </div>
             </form>
 
-            <div className="mt-6 p-3 bg-gray-50 rounded-lg">
+            <div className="mt-6 p-4 bg-gray-50 rounded-xl">
               <p className="text-xs text-gray-600 text-center">
-                Demo credentials:<br />
+                <span className="font-medium">Demo credentials:</span><br />
                 ID: EMP001 | Password: password123
               </p>
             </div>
