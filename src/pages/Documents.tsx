@@ -76,34 +76,34 @@ const Documents = () => {
   const categories = Array.from(new Set(documents.map(doc => doc.category)));
 
   const getFileIcon = (type: string) => {
-    return <FileText className="h-5 w-5 text-red-600" />;
+    return <FileText className="h-6 w-6 text-primary" />;
   };
 
   const handleDownload = (document: Document) => {
-    // Simulate download
     console.log(`Downloading ${document.title}`);
   };
 
   const handleView = (document: Document) => {
-    // Simulate view
     console.log(`Viewing ${document.title}`);
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
       <Header title="Documents & SOPs" />
       
-      <div className="max-w-md mx-auto p-4 space-y-4">
+      <div className="max-w-md mx-auto p-4 space-y-6">
         {/* Categories */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="grid grid-cols-2 gap-4 mb-6">
           {categories.map((category) => {
             const count = documents.filter(doc => doc.category === category).length;
             return (
-              <Card key={category} className="cursor-pointer hover:shadow-md transition-shadow">
-                <CardContent className="p-4 text-center">
-                  <Folder className="h-8 w-8 text-red-600 mx-auto mb-2" />
-                  <h3 className="font-medium text-sm">{category}</h3>
-                  <p className="text-xs text-muted-foreground">{count} documents</p>
+              <Card key={category} className="cursor-pointer hover:shadow-xl transition-all duration-200 border-0 shadow-lg bg-white/90 backdrop-blur-sm hover:-translate-y-1">
+                <CardContent className="p-5 text-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <Folder className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="font-bold text-sm text-gray-900 mb-1">{category}</h3>
+                  <p className="text-xs text-muted-foreground font-medium">{count} documents</p>
                 </CardContent>
               </Card>
             );
@@ -111,32 +111,32 @@ const Documents = () => {
         </div>
 
         {/* Documents List */}
-        <div className="space-y-3">
-          <h3 className="text-lg font-semibold">All Documents</h3>
+        <div className="space-y-4">
+          <h3 className="text-xl font-bold text-gray-900">All Documents</h3>
           {documents.map((document) => (
-            <Card key={document.id}>
-              <CardContent className="p-4">
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0">
+            <Card key={document.id} className="border-0 shadow-lg bg-white/90 backdrop-blur-sm hover:shadow-xl transition-all duration-200">
+              <CardContent className="p-5">
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center">
                     {getFileIcon(document.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-sm mb-1">{document.title}</h4>
-                    <p className="text-xs text-muted-foreground mb-2">{document.description}</p>
-                    <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                      <span>{document.type}</span>
+                    <h4 className="font-bold text-sm text-gray-900 mb-1">{document.title}</h4>
+                    <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{document.description}</p>
+                    <div className="flex items-center space-x-4 text-xs text-muted-foreground font-medium">
+                      <span className="px-2 py-1 bg-gray-100 rounded-full">{document.type}</span>
                       <span>{document.size}</span>
                       <span>Updated: {new Date(document.lastUpdated).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="flex space-x-2 mt-3">
+                <div className="flex space-x-2 mt-4">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleView(document)}
-                    className="flex-1"
+                    className="flex-1 border-gray-200 hover:bg-gray-50 font-medium rounded-xl"
                   >
                     <Eye className="h-4 w-4 mr-1" />
                     View
@@ -145,7 +145,7 @@ const Documents = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => handleDownload(document)}
-                    className="flex-1"
+                    className="flex-1 border-primary text-primary hover:bg-primary hover:text-white font-medium rounded-xl transition-all duration-200"
                   >
                     <Download className="h-4 w-4 mr-1" />
                     Download

@@ -5,7 +5,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Bell, Calendar, Eye } from 'lucide-react';
+import { Bell, Calendar, Eye, Megaphone } from 'lucide-react';
 
 interface Announcement {
   id: string;
@@ -69,21 +69,21 @@ const Announcements = () => {
   const unreadCount = announcements.filter(ann => !ann.isRead).length;
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
       <Header title="Announcements" />
       
-      <div className="max-w-md mx-auto p-4 space-y-4">
+      <div className="max-w-md mx-auto p-4 space-y-6">
         {/* Stats */}
-        <Card>
-          <CardContent className="p-4">
+        <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Bell className="h-5 w-5 text-blue-600" />
+              <div className="flex items-center space-x-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Bell className="h-7 w-7 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Unread Announcements</p>
-                  <p className="text-lg font-semibold">{unreadCount}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Unread Announcements</p>
+                  <p className="text-2xl font-bold text-gray-900">{unreadCount}</p>
                 </div>
               </div>
               {unreadCount > 0 && (
@@ -93,6 +93,7 @@ const Announcements = () => {
                   onClick={() => {
                     setAnnouncements(prev => prev.map(ann => ({ ...ann, isRead: true })));
                   }}
+                  className="border-primary text-primary hover:bg-primary hover:text-white transition-all duration-200 font-medium rounded-xl"
                 >
                   Mark All Read
                 </Button>
@@ -102,41 +103,48 @@ const Announcements = () => {
         </Card>
 
         {/* Announcements List */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           {announcements.map((announcement) => (
             <Card 
               key={announcement.id} 
-              className={`cursor-pointer hover:shadow-md transition-shadow ${
-                !announcement.isRead ? 'border-l-4 border-l-red-500' : ''
+              className={`cursor-pointer hover:shadow-xl transition-all duration-200 border-0 shadow-lg bg-white/90 backdrop-blur-sm hover:-translate-y-1 ${
+                !announcement.isRead ? 'ring-2 ring-primary/20' : ''
               }`}
               onClick={() => markAsRead(announcement.id)}
             >
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h3 className={`font-medium ${!announcement.isRead ? 'font-semibold' : ''}`}>
-                      {announcement.title}
-                    </h3>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <Calendar className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(announcement.date).toLocaleDateString()}
-                      </span>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Megaphone className="h-4 w-4 text-primary" />
+                      <h3 className={`font-bold text-gray-900 ${!announcement.isRead ? 'text-primary' : ''}`}>
+                        {announcement.title}
+                      </h3>
+                    </div>
+                    <div className="flex items-center space-x-3 mt-2">
+                      <div className="flex items-center space-x-1 text-muted-foreground">
+                        <Calendar className="h-3 w-3" />
+                        <span className="text-xs font-medium">
+                          {new Date(announcement.date).toLocaleDateString()}
+                        </span>
+                      </div>
                       {announcement.priority === 'important' && (
-                        <Badge variant="destructive" className="text-xs">Important</Badge>
+                        <Badge variant="destructive" className="text-xs font-medium rounded-full px-2 py-1">
+                          Important
+                        </Badge>
                       )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     {!announcement.isRead && (
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                      <div className="w-3 h-3 bg-primary rounded-full shadow-sm"></div>
                     )}
-                    <Eye className={`h-4 w-4 ${announcement.isRead ? 'text-muted-foreground' : 'text-red-500'}`} />
+                    <Eye className={`h-4 w-4 ${announcement.isRead ? 'text-muted-foreground' : 'text-primary'}`} />
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="text-sm text-muted-foreground line-clamp-3">
+                <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
                   {announcement.content}
                 </p>
               </CardContent>
@@ -145,9 +153,11 @@ const Announcements = () => {
         </div>
 
         {announcements.length === 0 && (
-          <div className="text-center py-8">
-            <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No announcements yet</p>
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Bell className="h-8 w-8 text-gray-400" />
+            </div>
+            <p className="text-muted-foreground font-medium">No announcements yet</p>
           </div>
         )}
       </div>

@@ -78,7 +78,6 @@ const Audit = () => {
       return;
     }
 
-    // Simulate submission
     setIsSubmitted(true);
     toast.success('Daily audit submitted successfully!');
   };
@@ -90,22 +89,23 @@ const Audit = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-background pb-20">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
         <Header title="Daily Audit" />
         <div className="max-w-md mx-auto p-4 flex items-center justify-center min-h-[60vh]">
-          <Card className="w-full text-center">
-            <CardContent className="p-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Check className="h-8 w-8 text-green-600" />
+          <Card className="w-full text-center border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+            <CardContent className="p-8">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Check className="h-10 w-10 text-white" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Audit Completed!</h3>
-              <p className="text-muted-foreground mb-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Audit Completed!</h3>
+              <p className="text-muted-foreground mb-6 leading-relaxed">
                 Your daily audit for {new Date().toLocaleDateString()} has been submitted successfully.
               </p>
               <Button 
                 onClick={() => setIsSubmitted(false)}
                 variant="outline"
-                className="w-full"
+                className="w-full hover:bg-gray-50 transition-colors"
+                size="lg"
               >
                 View Submission
               </Button>
@@ -118,20 +118,20 @@ const Audit = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
       <Header title="Daily Audit" />
       
-      <div className="max-w-md mx-auto p-4 space-y-4">
+      <div className="max-w-md mx-auto p-4 space-y-6">
         {/* Progress */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Progress</span>
-              <span className="text-sm text-muted-foreground">{getCompletionPercentage()}%</span>
+        <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold text-gray-900">Progress</span>
+              <span className="text-sm font-bold text-primary">{getCompletionPercentage()}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
               <div 
-                className="bg-red-600 h-2 rounded-full transition-all"
+                className="bg-gradient-to-r from-primary to-red-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
                 style={{ width: `${getCompletionPercentage()}%` }}
               ></div>
             </div>
@@ -139,54 +139,56 @@ const Audit = () => {
         </Card>
 
         {/* Date */}
-        <Card>
-          <CardContent className="p-4">
-            <Label className="text-sm font-medium">Audit Date</Label>
-            <p className="text-lg font-semibold mt-1">{new Date(auditDate).toLocaleDateString()}</p>
+        <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+          <CardContent className="p-6">
+            <Label className="text-sm font-semibold text-gray-700">Audit Date</Label>
+            <p className="text-xl font-bold text-gray-900 mt-2">{new Date(auditDate).toLocaleDateString()}</p>
           </CardContent>
         </Card>
 
         {/* Audit Items */}
         {auditItems.map((item) => (
-          <Card key={item.id}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">{item.question}</CardTitle>
+          <Card key={item.id} className="border-0 shadow-lg bg-white/90 backdrop-blur-sm hover:shadow-xl transition-all duration-200">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg text-gray-900">{item.question}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5">
               <RadioGroup
                 value={item.answer || ''}
                 onValueChange={(value) => updateAuditItem(item.id, 'answer', value as 'yes' | 'no')}
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-green-50/50 transition-colors">
                   <RadioGroupItem value="yes" id={`${item.id}-yes`} />
-                  <Label htmlFor={`${item.id}-yes`} className="flex items-center">
-                    <Check className="h-4 w-4 text-green-600 mr-1" />
-                    Yes
+                  <Label htmlFor={`${item.id}-yes`} className="flex items-center cursor-pointer">
+                    <Check className="h-4 w-4 text-green-600 mr-2" />
+                    <span className="font-medium">Yes</span>
                   </Label>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-red-50/50 transition-colors">
                   <RadioGroupItem value="no" id={`${item.id}-no`} />
-                  <Label htmlFor={`${item.id}-no`} className="flex items-center">
-                    <X className="h-4 w-4 text-red-600 mr-1" />
-                    No
+                  <Label htmlFor={`${item.id}-no`} className="flex items-center cursor-pointer">
+                    <X className="h-4 w-4 text-red-600 mr-2" />
+                    <span className="font-medium">No</span>
                   </Label>
                 </div>
               </RadioGroup>
 
               <div>
-                <Label htmlFor={`${item.id}-comments`} className="text-sm">Comments (Optional)</Label>
+                <Label htmlFor={`${item.id}-comments`} className="text-sm font-medium text-gray-700">Comments (Optional)</Label>
                 <Textarea
                   id={`${item.id}-comments`}
                   placeholder="Add any additional comments..."
                   value={item.comments}
                   onChange={(e) => updateAuditItem(item.id, 'comments', e.target.value)}
-                  className="mt-1"
+                  className="mt-2 border-gray-200 focus:border-primary/50 focus:ring-primary/20"
                 />
               </div>
 
               {item.photoRequired && (
                 <div>
-                  <Label className="text-sm">Photo Upload {item.answer === 'no' ? '(Required)' : '(Optional)'}</Label>
+                  <Label className="text-sm font-medium text-gray-700">
+                    Photo Upload {item.answer === 'no' ? '(Required)' : '(Optional)'}
+                  </Label>
                   <div className="mt-2">
                     <Button
                       variant="outline"
@@ -201,10 +203,10 @@ const Audit = () => {
                         };
                         input.click();
                       }}
-                      className="w-full"
+                      className="w-full hover:bg-gray-50 border-gray-200"
                     >
                       <Camera className="h-4 w-4 mr-2" />
-                      {item.photo ? 'Photo Uploaded' : 'Take Photo'}
+                      {item.photo ? '✓ Photo Uploaded' : 'Take Photo'}
                     </Button>
                   </div>
                 </div>
@@ -216,7 +218,7 @@ const Audit = () => {
         {/* Submit Button */}
         <Button
           onClick={handleSubmit}
-          className="w-full bg-red-600 hover:bg-red-700 text-white"
+          className="w-full bg-gradient-to-r from-primary to-red-600 hover:from-primary/90 hover:to-red-600/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
           size="lg"
           disabled={getCompletionPercentage() < 100}
         >

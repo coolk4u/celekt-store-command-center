@@ -5,7 +5,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Calendar, User, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Calendar, User, MessageSquare, AlertTriangle } from 'lucide-react';
 
 const IssueDetails = () => {
   const { id } = useParams();
@@ -59,56 +59,63 @@ const IssueDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
       <Header title="Issue Details" />
       
-      <div className="max-w-md mx-auto p-4 space-y-4">
+      <div className="max-w-md mx-auto p-4 space-y-6">
         <Button
           variant="ghost"
           onClick={() => navigate('/issues')}
-          className="mb-4 p-0 h-auto"
+          className="mb-4 p-0 h-auto hover:bg-gray-100 rounded-lg px-2 py-1"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Issues
+          <span className="font-medium">Back to Issues</span>
         </Button>
 
         {/* Issue Info */}
-        <Card>
+        <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm">
           <CardHeader>
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <CardTitle className="text-lg mb-2">{issue.title}</CardTitle>
-                <p className="text-sm text-muted-foreground">{issue.category}</p>
+                <div className="flex items-center space-x-2 mb-2">
+                  <AlertTriangle className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-xl text-gray-900">{issue.title}</CardTitle>
+                </div>
+                <p className="text-sm font-medium text-gray-600">{issue.category}</p>
               </div>
               <div className="flex flex-col items-end space-y-2">
-                <Badge className={getStatusColor(issue.status)}>
+                <Badge className={`${getStatusColor(issue.status)} font-medium rounded-full px-3 py-1`}>
                   {issue.status}
                 </Badge>
-                <Badge variant="outline" className={getPriorityColor(issue.priority)}>
+                <Badge variant="outline" className={`${getPriorityColor(issue.priority)} font-medium rounded-full px-3 py-1`}>
                   {issue.priority} Priority
                 </Badge>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div>
-              <h4 className="font-medium mb-2">Description</h4>
-              <p className="text-sm text-muted-foreground">{issue.description}</p>
+              <h4 className="font-bold mb-3 text-gray-900">Description</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">{issue.description}</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-              <div className="flex items-center space-x-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-2xl flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-blue-600" />
+                </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Date Raised</p>
-                  <p className="text-sm font-medium">{new Date(issue.dateRaised).toLocaleDateString()}</p>
+                  <p className="text-xs text-muted-foreground font-medium">Date Raised</p>
+                  <p className="text-sm font-bold text-gray-900">{new Date(issue.dateRaised).toLocaleDateString()}</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <User className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-green-100 rounded-2xl flex items-center justify-center">
+                  <User className="h-5 w-5 text-green-600" />
+                </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Raised By</p>
-                  <p className="text-sm font-medium">{issue.raisedBy}</p>
+                  <p className="text-xs text-muted-foreground font-medium">Raised By</p>
+                  <p className="text-sm font-bold text-gray-900">{issue.raisedBy}</p>
                 </div>
               </div>
             </div>
@@ -116,26 +123,26 @@ const IssueDetails = () => {
         </Card>
 
         {/* Updates */}
-        <Card>
+        <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-base flex items-center">
-              <MessageSquare className="h-4 w-4 mr-2" />
+            <CardTitle className="text-lg flex items-center text-gray-900">
+              <MessageSquare className="h-5 w-5 mr-2 text-primary" />
               Updates & Progress
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {issue.updates.map((update, index) => (
-                <div key={index} className="flex space-x-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm font-medium">{update.by}</p>
-                      <p className="text-xs text-muted-foreground">
+                <div key={index} className="flex space-x-4">
+                  <div className="w-3 h-3 bg-primary rounded-full mt-2 flex-shrink-0 shadow-sm"></div>
+                  <div className="flex-1 pb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-bold text-gray-900">{update.by}</p>
+                      <p className="text-xs text-muted-foreground font-medium">
                         {new Date(update.date).toLocaleDateString()}
                       </p>
                     </div>
-                    <p className="text-sm text-muted-foreground">{update.message}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{update.message}</p>
                   </div>
                 </div>
               ))}
@@ -145,13 +152,16 @@ const IssueDetails = () => {
 
         {/* Actions */}
         {issue.status !== 'Closed' && (
-          <Card>
-            <CardContent className="p-4">
+          <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-5">
               <div className="space-y-3">
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full h-12 border-gray-200 hover:bg-gray-50 font-medium rounded-xl">
                   Add Update
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full h-12 border-primary text-primary hover:bg-primary hover:text-white font-medium rounded-xl transition-all duration-200"
+                >
                   Contact Support
                 </Button>
               </div>

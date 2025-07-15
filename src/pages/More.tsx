@@ -31,37 +31,43 @@ const More = () => {
       icon: User,
       title: 'Profile',
       description: 'View and edit your profile',
-      action: () => console.log('Profile clicked')
+      action: () => console.log('Profile clicked'),
+      color: 'from-blue-400 to-blue-600'
     },
     {
       icon: Lock,
       title: 'Change Password',
       description: 'Update your account password',
-      action: () => console.log('Change password clicked')
+      action: () => console.log('Change password clicked'),
+      color: 'from-yellow-400 to-yellow-600'
     },
     {
       icon: Settings,
       title: 'App Settings',
       description: 'Notifications and preferences',
-      action: () => console.log('Settings clicked')
+      action: () => console.log('Settings clicked'),
+      color: 'from-purple-400 to-purple-600'
     },
     {
       icon: FileText,
       title: 'Documents',
       description: 'View SOPs and policies',
-      action: () => navigate('/documents')
+      action: () => navigate('/documents'),
+      color: 'from-green-400 to-green-600'
     },
     {
       icon: HelpCircle,
       title: 'Help & Support',
       description: 'Get help and contact support',
-      action: () => console.log('Help clicked')
+      action: () => console.log('Help clicked'),
+      color: 'from-orange-400 to-orange-600'
     },
     {
       icon: Shield,
       title: 'Privacy Policy',
       description: 'View privacy policy',
-      action: () => console.log('Privacy clicked')
+      action: () => console.log('Privacy clicked'),
+      color: 'from-gray-400 to-gray-600'
     }
   ];
 
@@ -70,31 +76,33 @@ const More = () => {
       icon: Phone,
       title: 'Call Central Team',
       description: '+91 98765 43210',
-      action: () => window.open('tel:+919876543210')
+      action: () => window.open('tel:+919876543210'),
+      color: 'from-green-400 to-green-600'
     },
     {
       icon: Mail,
       title: 'Email Support',
       description: 'support@celekt.com',
-      action: () => window.open('mailto:support@celekt.com')
+      action: () => window.open('mailto:support@celekt.com'),
+      color: 'from-blue-400 to-blue-600'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
       <Header title="More" />
       
       <div className="max-w-md mx-auto p-4 space-y-6">
         {/* User Info */}
-        <Card>
-          <CardContent className="p-4">
+        <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+          <CardContent className="p-6">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
-                <User className="h-6 w-6 text-white" />
+              <div className="w-16 h-16 bg-gradient-to-br from-primary to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <User className="h-8 w-8 text-white" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-foreground">{user?.name}</h3>
-                <p className="text-sm text-muted-foreground">{user?.employeeId}</p>
+                <h3 className="font-bold text-lg text-gray-900">{user?.name}</h3>
+                <p className="text-sm text-muted-foreground font-medium">{user?.employeeId}</p>
                 <p className="text-sm text-muted-foreground">{user?.storeName}</p>
               </div>
             </div>
@@ -102,16 +110,16 @@ const More = () => {
         </Card>
 
         {/* Menu Items */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           {menuItems.map((item, index) => (
-            <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardContent className="p-4" onClick={item.action}>
+            <Card key={index} className="cursor-pointer hover:shadow-xl transition-all duration-200 border-0 shadow-lg bg-white/90 backdrop-blur-sm hover:-translate-y-1">
+              <CardContent className="p-5" onClick={item.action}>
                 <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                    <item.icon className="h-5 w-5 text-gray-600" />
+                  <div className={`w-12 h-12 bg-gradient-to-br ${item.color} rounded-2xl flex items-center justify-center shadow-lg`}>
+                    <item.icon className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-medium text-foreground">{item.title}</h4>
+                    <h4 className="font-bold text-gray-900">{item.title}</h4>
                     <p className="text-sm text-muted-foreground">{item.description}</p>
                   </div>
                 </div>
@@ -121,18 +129,18 @@ const More = () => {
         </div>
 
         {/* Contact Central Team */}
-        <div className="space-y-3">
-          <h3 className="text-lg font-semibold text-foreground">Contact Central Team</h3>
-          <div className="space-y-2">
+        <div className="space-y-4">
+          <h3 className="text-xl font-bold text-gray-900">Contact Central Team</h3>
+          <div className="space-y-3">
             {contactOptions.map((option, index) => (
-              <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow">
-                <CardContent className="p-4" onClick={option.action}>
+              <Card key={index} className="cursor-pointer hover:shadow-xl transition-all duration-200 border-0 shadow-lg bg-white/90 backdrop-blur-sm hover:-translate-y-1">
+                <CardContent className="p-5" onClick={option.action}>
                   <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <option.icon className="h-5 w-5 text-blue-600" />
+                    <div className={`w-12 h-12 bg-gradient-to-br ${option.color} rounded-2xl flex items-center justify-center shadow-lg`}>
+                      <option.icon className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-foreground">{option.title}</h4>
+                      <h4 className="font-bold text-gray-900">{option.title}</h4>
                       <p className="text-sm text-muted-foreground">{option.description}</p>
                     </div>
                   </div>
@@ -143,15 +151,15 @@ const More = () => {
         </div>
 
         {/* Logout */}
-        <Card>
-          <CardContent className="p-4">
+        <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+          <CardContent className="p-5">
             <Button
               onClick={handleLogout}
               variant="destructive"
-              className="w-full"
+              className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 font-semibold shadow-lg hover:shadow-xl transition-all duration-200 h-12 rounded-xl"
               size="lg"
             >
-              <LogOut className="h-4 w-4 mr-2" />
+              <LogOut className="h-5 w-5 mr-2" />
               Logout
             </Button>
           </CardContent>
@@ -159,7 +167,7 @@ const More = () => {
 
         {/* App Version */}
         <div className="text-center">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground font-medium">
             Celekt Store Manager v1.0.0
           </p>
         </div>

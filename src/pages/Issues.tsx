@@ -6,7 +6,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Filter } from 'lucide-react';
+import { Plus, AlertTriangle, Clock } from 'lucide-react';
 
 interface Issue {
   id: string;
@@ -85,21 +85,24 @@ const Issues = () => {
     }
   };
 
+  const getPriorityIcon = (priority: string) => {
+    if (priority === 'High') return <AlertTriangle className="h-3 w-3" />;
+    return <Clock className="h-3 w-3" />;
+  };
+
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
       <Header title="Issues" />
       
-      <div className="max-w-md mx-auto p-4 space-y-4">
-        {/* Action Buttons */}
-        <div className="flex space-x-3">
-          <Button
-            onClick={() => navigate('/raise-issue')}
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Raise Issue
-          </Button>
-        </div>
+      <div className="max-w-md mx-auto p-4 space-y-6">
+        {/* Action Button */}
+        <Button
+          onClick={() => navigate('/raise-issue')}
+          className="w-full bg-gradient-to-r from-primary to-red-600 hover:from-primary/90 hover:to-red-600/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 h-14 rounded-2xl"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Raise New Issue
+        </Button>
 
         {/* Filter Buttons */}
         <div className="flex space-x-2">
@@ -107,7 +110,7 @@ const Issues = () => {
             variant={filter === 'all' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('all')}
-            className={filter === 'all' ? 'bg-red-600 hover:bg-red-700' : ''}
+            className={`rounded-xl ${filter === 'all' ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50'}`}
           >
             All ({issues.length})
           </Button>
@@ -115,7 +118,7 @@ const Issues = () => {
             variant={filter === 'open' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('open')}
-            className={filter === 'open' ? 'bg-red-600 hover:bg-red-700' : ''}
+            className={`rounded-xl ${filter === 'open' ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50'}`}
           >
             Open ({issues.filter(i => i.status !== 'Closed').length})
           </Button>
@@ -123,42 +126,43 @@ const Issues = () => {
             variant={filter === 'closed' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('closed')}
-            className={filter === 'closed' ? 'bg-red-600 hover:bg-red-700' : ''}
+            className={`rounded-xl ${filter === 'closed' ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50'}`}
           >
             Closed ({issues.filter(i => i.status === 'Closed').length})
           </Button>
         </div>
 
         {/* Issues List */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           {filteredIssues.map((issue) => (
-            <Card key={issue.id} className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardContent className="p-4" onClick={() => navigate(`/issues/${issue.id}`)}>
-                <div className="flex items-start justify-between mb-2">
+            <Card key={issue.id} className="cursor-pointer hover:shadow-xl transition-all duration-200 border-0 shadow-lg bg-white/90 backdrop-blur-sm hover:-translate-y-1">
+              <CardContent className="p-5" onClick={() => navigate(`/issues/${issue.id}`)}>
+                <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h3 className="font-medium text-foreground mb-1">{issue.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{issue.category}</p>
+                    <h3 className="font-bold text-gray-900 mb-2">{issue.title}</h3>
+                    <p className="text-sm font-medium text-gray-600 mb-2">{issue.category}</p>
                   </div>
-                  <div className="flex flex-col items-end space-y-1">
-                    <Badge className={getStatusColor(issue.status)}>
+                  <div className="flex flex-col items-end space-y-2">
+                    <Badge className={`${getStatusColor(issue.status)} font-medium rounded-full px-3 py-1`}>
                       {issue.status}
                     </Badge>
-                    <Badge variant="outline" className={getPriorityColor(issue.priority)}>
+                    <Badge variant="outline" className={`${getPriorityColor(issue.priority)} font-medium rounded-full px-3 py-1 flex items-center gap-1`}>
+                      {getPriorityIcon(issue.priority)}
                       {issue.priority}
                     </Badge>
                   </div>
                 </div>
                 
-                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                <p className="text-sm text-muted-foreground mb-4 line-clamp-2 leading-relaxed">
                   {issue.description}
                 </p>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground font-medium">
                     Raised: {new Date(issue.dateRaised).toLocaleDateString()}
                   </span>
-                  <Button variant="ghost" size="sm">
-                    View Details
+                  <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10 font-medium">
+                    View Details →
                   </Button>
                 </div>
               </CardContent>
@@ -167,8 +171,11 @@ const Issues = () => {
         </div>
 
         {filteredIssues.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">No issues found</p>
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="h-8 w-8 text-gray-400" />
+            </div>
+            <p className="text-muted-foreground font-medium">No issues found</p>
           </div>
         )}
       </div>
