@@ -83,7 +83,13 @@ const Dashboard = () => {
       icon: AlertTriangle
     },
   ];
-
+{/* Welcome Section */}
+        <div className="text-center py-4">
+          <h2 className="text-lg font-semibold text-gray-800 mb-1">
+            You have <span className="text-primary font-bold">4 tasks</span> today
+          </h2>
+          <p className="text-sm text-muted-foreground">Keep up the great work!</p>
+        </div>
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
       <Header title={`Hello, ${user?.name?.split(' ')[0] || 'Manager'}!`} showProfile />
@@ -116,13 +122,7 @@ const Dashboard = () => {
         
 
         {/* Summary Cards */}
-        {/* Welcome Section */}
-        <div className="text-center py-4">
-          <h2 className="text-lg font-semibold text-gray-800 mb-1">
-            You have <span className="text-primary font-bold">4 tasks</span> today
-          </h2>
-          <p className="text-sm text-muted-foreground">Keep up the great work!</p>
-        </div>
+        
         <div className="grid grid-cols-2 gap-4">
           {summaryCards.map((card, index) => (
             <Card 
