@@ -98,7 +98,7 @@ const Audit = () => {
                 <Check className="h-10 w-10 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Audit Completed!</h3>
-              <p className="text-muted-foreground mb-6 leading-relaxed">
+              <p className="text-gray-600 mb-6 leading-relaxed">
                 Your daily audit for {new Date().toLocaleDateString()} has been submitted successfully.
               </p>
               <Button 
@@ -141,7 +141,7 @@ const Audit = () => {
         {/* Date */}
         <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
           <CardContent className="p-6">
-            <Label className="text-sm font-semibold text-gray-700">Audit Date</Label>
+            <Label className="text-sm font-semibold text-gray-900">Audit Date</Label>
             <p className="text-xl font-bold text-gray-900 mt-2">{new Date(auditDate).toLocaleDateString()}</p>
           </CardContent>
         </Card>
@@ -159,14 +159,14 @@ const Audit = () => {
               >
                 <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-green-50/50 transition-colors">
                   <RadioGroupItem value="yes" id={`${item.id}-yes`} />
-                  <Label htmlFor={`${item.id}-yes`} className="flex items-center cursor-pointer">
+                  <Label htmlFor={`${item.id}-yes`} className="flex items-center cursor-pointer text-gray-900">
                     <Check className="h-4 w-4 text-green-600 mr-2" />
                     <span className="font-medium">Yes</span>
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-red-50/50 transition-colors">
                   <RadioGroupItem value="no" id={`${item.id}-no`} />
-                  <Label htmlFor={`${item.id}-no`} className="flex items-center cursor-pointer">
+                  <Label htmlFor={`${item.id}-no`} className="flex items-center cursor-pointer text-gray-900">
                     <X className="h-4 w-4 text-red-600 mr-2" />
                     <span className="font-medium">No</span>
                   </Label>
@@ -174,19 +174,19 @@ const Audit = () => {
               </RadioGroup>
 
               <div>
-                <Label htmlFor={`${item.id}-comments`} className="text-sm font-medium text-gray-700">Comments (Optional)</Label>
+                <Label htmlFor={`${item.id}-comments`} className="text-sm font-medium text-gray-900">Comments (Optional)</Label>
                 <Textarea
                   id={`${item.id}-comments`}
                   placeholder="Add any additional comments..."
                   value={item.comments}
                   onChange={(e) => updateAuditItem(item.id, 'comments', e.target.value)}
-                  className="mt-2 border-gray-200 focus:border-primary/50 focus:ring-primary/20"
+                  className="mt-2 border-gray-200 focus:border-primary/50 focus:ring-primary/20 text-gray-900"
                 />
               </div>
 
               {item.photoRequired && (
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm font-medium text-gray-900">
                     Photo Upload {item.answer === 'no' ? '(Required)' : '(Optional)'}
                   </Label>
                   <div className="mt-2">
@@ -203,7 +203,7 @@ const Audit = () => {
                         };
                         input.click();
                       }}
-                      className="w-full hover:bg-gray-50 border-gray-200"
+                      className="w-full hover:bg-gray-50 border-gray-200 text-gray-900"
                     >
                       <Camera className="h-4 w-4 mr-2" />
                       {item.photo ? '✓ Photo Uploaded' : 'Take Photo'}

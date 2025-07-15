@@ -69,7 +69,7 @@ const IssueDetails = () => {
           className="mb-4 p-0 h-auto hover:bg-gray-100 rounded-lg px-2 py-1"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          <span className="font-medium">Back to Issues</span>
+          <span className="font-medium text-gray-900">Back to Issues</span>
         </Button>
 
         {/* Issue Info */}
@@ -81,7 +81,7 @@ const IssueDetails = () => {
                   <AlertTriangle className="h-5 w-5 text-primary" />
                   <CardTitle className="text-xl text-gray-900">{issue.title}</CardTitle>
                 </div>
-                <p className="text-sm font-medium text-gray-600">{issue.category}</p>
+                <p className="text-sm font-medium text-gray-700">{issue.category}</p>
               </div>
               <div className="flex flex-col items-end space-y-2">
                 <Badge className={`${getStatusColor(issue.status)} font-medium rounded-full px-3 py-1`}>
@@ -96,7 +96,7 @@ const IssueDetails = () => {
           <CardContent className="space-y-6">
             <div>
               <h4 className="font-bold mb-3 text-gray-900">Description</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">{issue.description}</p>
+              <p className="text-sm text-gray-600 leading-relaxed">{issue.description}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-6 pt-4 border-t border-gray-100">
@@ -105,7 +105,7 @@ const IssueDetails = () => {
                   <Calendar className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground font-medium">Date Raised</p>
+                  <p className="text-xs text-gray-500 font-medium">Date Raised</p>
                   <p className="text-sm font-bold text-gray-900">{new Date(issue.dateRaised).toLocaleDateString()}</p>
                 </div>
               </div>
@@ -114,7 +114,7 @@ const IssueDetails = () => {
                   <User className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground font-medium">Raised By</p>
+                  <p className="text-xs text-gray-500 font-medium">Raised By</p>
                   <p className="text-sm font-bold text-gray-900">{issue.raisedBy}</p>
                 </div>
               </div>
@@ -138,11 +138,11 @@ const IssueDetails = () => {
                   <div className="flex-1 pb-4">
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-sm font-bold text-gray-900">{update.by}</p>
-                      <p className="text-xs text-muted-foreground font-medium">
+                      <p className="text-xs text-gray-500 font-medium">
                         {new Date(update.date).toLocaleDateString()}
                       </p>
                     </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{update.message}</p>
+                    <p className="text-sm text-gray-600 leading-relaxed">{update.message}</p>
                   </div>
                 </div>
               ))}
@@ -155,7 +155,7 @@ const IssueDetails = () => {
           <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm">
             <CardContent className="p-5">
               <div className="space-y-3">
-                <Button variant="outline" className="w-full h-12 border-gray-200 hover:bg-gray-50 font-medium rounded-xl">
+                <Button variant="outline" className="w-full h-12 border-gray-200 hover:bg-gray-50 font-medium rounded-xl text-gray-900">
                   Add Update
                 </Button>
                 <Button 

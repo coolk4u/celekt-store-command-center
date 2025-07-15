@@ -110,7 +110,7 @@ const Issues = () => {
             variant={filter === 'all' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('all')}
-            className={`rounded-xl ${filter === 'all' ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50'}`}
+            className={`rounded-xl ${filter === 'all' ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50 text-gray-900'}`}
           >
             All ({issues.length})
           </Button>
@@ -118,7 +118,7 @@ const Issues = () => {
             variant={filter === 'open' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('open')}
-            className={`rounded-xl ${filter === 'open' ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50'}`}
+            className={`rounded-xl ${filter === 'open' ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50 text-gray-900'}`}
           >
             Open ({issues.filter(i => i.status !== 'Closed').length})
           </Button>
@@ -126,7 +126,7 @@ const Issues = () => {
             variant={filter === 'closed' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('closed')}
-            className={`rounded-xl ${filter === 'closed' ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50'}`}
+            className={`rounded-xl ${filter === 'closed' ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50 text-gray-900'}`}
           >
             Closed ({issues.filter(i => i.status === 'Closed').length})
           </Button>
@@ -140,7 +140,7 @@ const Issues = () => {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h3 className="font-bold text-gray-900 mb-2">{issue.title}</h3>
-                    <p className="text-sm font-medium text-gray-600 mb-2">{issue.category}</p>
+                    <p className="text-sm font-medium text-gray-700 mb-2">{issue.category}</p>
                   </div>
                   <div className="flex flex-col items-end space-y-2">
                     <Badge className={`${getStatusColor(issue.status)} font-medium rounded-full px-3 py-1`}>
@@ -153,12 +153,12 @@ const Issues = () => {
                   </div>
                 </div>
                 
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-2 leading-relaxed">
+                <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
                   {issue.description}
                 </p>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground font-medium">
+                  <span className="text-xs text-gray-500 font-medium">
                     Raised: {new Date(issue.dateRaised).toLocaleDateString()}
                   </span>
                   <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10 font-medium">
@@ -175,7 +175,7 @@ const Issues = () => {
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertTriangle className="h-8 w-8 text-gray-400" />
             </div>
-            <p className="text-muted-foreground font-medium">No issues found</p>
+            <p className="text-gray-600 font-medium">No issues found</p>
           </div>
         )}
       </div>

@@ -82,7 +82,7 @@ const Announcements = () => {
                   <Bell className="h-7 w-7 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Unread Announcements</p>
+                  <p className="text-sm font-medium text-gray-600">Unread Announcements</p>
                   <p className="text-2xl font-bold text-gray-900">{unreadCount}</p>
                 </div>
               </div>
@@ -122,7 +122,7 @@ const Announcements = () => {
                       </h3>
                     </div>
                     <div className="flex items-center space-x-3 mt-2">
-                      <div className="flex items-center space-x-1 text-muted-foreground">
+                      <div className="flex items-center space-x-1 text-gray-600">
                         <Calendar className="h-3 w-3" />
                         <span className="text-xs font-medium">
                           {new Date(announcement.date).toLocaleDateString()}
@@ -139,12 +139,12 @@ const Announcements = () => {
                     {!announcement.isRead && (
                       <div className="w-3 h-3 bg-primary rounded-full shadow-sm"></div>
                     )}
-                    <Eye className={`h-4 w-4 ${announcement.isRead ? 'text-muted-foreground' : 'text-primary'}`} />
+                    <Eye className={`h-4 w-4 ${announcement.isRead ? 'text-gray-500' : 'text-primary'}`} />
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
+                <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed">
                   {announcement.content}
                 </p>
               </CardContent>
@@ -157,7 +157,7 @@ const Announcements = () => {
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Bell className="h-8 w-8 text-gray-400" />
             </div>
-            <p className="text-muted-foreground font-medium">No announcements yet</p>
+            <p className="text-gray-600 font-medium">No announcements yet</p>
           </div>
         )}
       </div>
