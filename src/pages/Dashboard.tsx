@@ -4,12 +4,31 @@ import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { ClipboardCheck, AlertTriangle, Megaphone, TrendingUp, Calendar, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const carouselImages = [
+    {
+      src: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=400&fit=crop",
+      alt: "Latest Mobile Technology",
+      title: "Latest Mobile Technology"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=800&h=400&fit=crop",
+      alt: "Premium Mobile Collection",
+      title: "Premium Mobile Collection"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&h=400&fit=crop",
+      alt: "Mobile Innovation",
+      title: "Mobile Innovation"
+    }
+  ];
 
   const summaryCards = [
     {
@@ -70,6 +89,30 @@ const Dashboard = () => {
       <Header title={`Hello, ${user?.name?.split(' ')[0] || 'Manager'}!`} showProfile />
       
       <div className="max-w-md mx-auto p-4 space-y-6">
+        {/* Carousel Section */}
+        <div className="relative">
+          <Carousel className="w-full max-w-md mx-auto">
+            <CarouselContent>
+              {carouselImages.map((image, index) => (
+                <CarouselItem key={index}>
+                  <div className="relative">
+                    <img 
+                      src={image.src} 
+                      alt={image.alt}
+                      className="w-full h-48 object-cover rounded-2xl shadow-lg"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent rounded-b-2xl p-4">
+                      <h3 className="text-white font-semibold text-lg">{image.title}</h3>
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-2" />
+            <CarouselNext className="right-2" />
+          </Carousel>
+        </div>
+
         {/* Welcome Section */}
         <div className="text-center py-4">
           <h2 className="text-lg font-semibold text-gray-800 mb-1">
