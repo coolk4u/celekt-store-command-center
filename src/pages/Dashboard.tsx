@@ -104,9 +104,36 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-white pb-20">
-      <Header title={`Hello, ${user?.name?.split(' ')[0] || 'Manager'}!`} showProfile />
+      <Header title={`Hello, ${user?.name || 'Manager'}!`} showProfile />
       
       <div className="max-w-md mx-auto p-4 space-y-6">
+        {/* Welcome Section */}
+        <div className="text-center py-4">
+          <h2 className="text-lg font-semibold text-gray-800 mb-1">
+            You have <span className="text-primary font-bold">4 tasks</span> today
+          </h2>
+          <p className="text-sm text-muted-foreground">Keep up the great work!</p>
+        </div>
+
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 gap-4">
+          {summaryCards.map((card, index) => (
+            <Card 
+              key={index} 
+              className="cursor-pointer hover:shadow-lg transition-all duration-200 border-0 shadow-md bg-white hover:-translate-y-1" 
+              onClick={card.action}
+            >
+              <CardContent className="p-4">
+                <div className={`w-12 h-12 rounded-2xl ${card.iconBg} flex items-center justify-center mb-3`}>
+                  <card.icon className={`h-6 w-6 ${card.color}`} />
+                </div>
+                <p className="text-xs text-muted-foreground mb-1 font-medium">{card.title}</p>
+                <p className="text-lg font-bold text-gray-900">{card.value}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
         {/* Carousel Section */}
         <div className="relative">
           <Carousel className="w-full max-w-md mx-auto">
@@ -131,33 +158,6 @@ const Dashboard = () => {
           </Carousel>
         </div>
 
-        {/* Welcome Section */}
-        <div className="text-center py-4">
-          <h2 className="text-lg font-semibold text-gray-800 mb-1">
-            You have <span className="text-primary font-bold">4 tasks</span> today
-          </h2>
-          <p className="text-sm text-muted-foreground">Keep up the great work!</p>
-        </div>
-
-        {/* Summary Cards */}
-        <div className="grid grid-cols-2 gap-4">
-          {summaryCards.map((card, index) => (
-            <Card 
-              key={index} 
-              className="cursor-pointer hover:shadow-lg transition-all duration-200 border-0 shadow-md bg-white/80 backdrop-blur-sm hover:-translate-y-1" 
-              onClick={card.action}
-            >
-              <CardContent className="p-4">
-                <div className={`w-12 h-12 rounded-2xl ${card.iconBg} flex items-center justify-center mb-3`}>
-                  <card.icon className={`h-6 w-6 ${card.color}`} />
-                </div>
-                <p className="text-xs text-muted-foreground mb-1 font-medium">{card.title}</p>
-                <p className="text-lg font-bold text-gray-900">{card.value}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
         {/* Quick Actions */}
         <div className="space-y-4">
           <h3 className="text-lg font-bold text-gray-900">Quick Actions</h3>
@@ -179,7 +179,7 @@ const Dashboard = () => {
         {/* Recent Activity */}
         <div className="space-y-4">
           <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
-          <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
+          <Card className="border-0 shadow-md bg-white">
             <CardContent className="p-5 space-y-4">
               <div className="flex items-start space-x-4">
                 <div className="w-3 h-3 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></div>
