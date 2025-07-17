@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,6 +15,10 @@ import Announcements from "./pages/Announcements";
 import Documents from "./pages/Documents";
 import More from "./pages/More";
 import NotFound from "./pages/NotFound";
+import Leads from "./pages/Leads";
+import LeadCapture from "./pages/LeadCapture";
+import DemoRequests from "./pages/DemoRequests";
+import DemoDetails from "./pages/DemoDetails";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +54,26 @@ const App = () => (
             <Route path="/raise-issue" element={
               <ProtectedRoute>
                 <RaiseIssue />
+              </ProtectedRoute>
+            } />
+            <Route path="/leads" element={
+              <ProtectedRoute>
+                <Leads />
+              </ProtectedRoute>
+            } />
+            <Route path="/lead-capture" element={
+              <ProtectedRoute>
+                <LeadCapture />
+              </ProtectedRoute>
+            } />
+            <Route path="/demo-requests" element={
+              <ProtectedRoute>
+                <DemoRequests />
+              </ProtectedRoute>
+            } />
+            <Route path="/demo-details/:id" element={
+              <ProtectedRoute>
+                <DemoDetails />
               </ProtectedRoute>
             } />
             <Route path="/announcements" element={

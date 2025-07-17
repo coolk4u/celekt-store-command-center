@@ -50,22 +50,22 @@ const Dashboard = () => {
       action: () => navigate('/issues')
     },
     {
-      title: "Announcements",
-      value: "2 New",
+      title: "New Leads",
+      value: "5",
       icon: Megaphone,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       iconBg: "bg-blue-100",
-      action: () => navigate('/announcements')
+      action: () => navigate('/leads')
     },
     {
-      title: "Monthly Score",
-      value: "92%",
+      title: "Demo Requests",
+      value: "2",
       icon: TrendingUp,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      iconBg: "bg-green-100",
-      action: () => {}
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+      iconBg: "bg-purple-100",
+      action: () => navigate('/demo-requests')
     }
   ];
 
@@ -77,19 +77,19 @@ const Dashboard = () => {
       icon: ClipboardCheck
     },
     { 
+      title: 'Capture New Lead', 
+      action: () => navigate('/lead-capture'), 
+      gradient: 'from-blue-600 to-blue-700',
+      icon: Megaphone
+    },
+    { 
       title: 'Raise New Issue', 
       action: () => navigate('/raise-issue'), 
       gradient: 'from-gray-600 to-gray-700',
       icon: AlertTriangle
     },
   ];
-{/* Welcome Section */}
-        <div className="text-center py-4">
-          <h2 className="text-lg font-semibold text-gray-800 mb-1">
-            You have <span className="text-primary font-bold">4 tasks</span> today
-          </h2>
-          <p className="text-sm text-muted-foreground">Keep up the great work!</p>
-        </div>
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
       <Header title={`Hello, ${user?.name?.split(' ')[0] || 'Manager'}!`} showProfile />
@@ -119,10 +119,15 @@ const Dashboard = () => {
           </Carousel>
         </div>
 
-        
+        {/* Welcome Section */}
+        <div className="text-center py-4">
+          <h2 className="text-lg font-semibold text-gray-800 mb-1">
+            You have <span className="text-primary font-bold">4 tasks</span> today
+          </h2>
+          <p className="text-sm text-muted-foreground">Keep up the great work!</p>
+        </div>
 
         {/* Summary Cards */}
-        
         <div className="grid grid-cols-2 gap-4">
           {summaryCards.map((card, index) => (
             <Card 
@@ -167,8 +172,16 @@ const Dashboard = () => {
               <div className="flex items-start space-x-4">
                 <div className="w-3 h-3 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">Yesterday's audit completed</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Score: 95% - Excellent work!</p>
+                  <p className="text-sm font-semibold text-gray-900">New lead captured</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Rajesh Kumar - iPhone 15 Pro interest</p>
+                </div>
+                <span className="text-xs text-muted-foreground">1h ago</span>
+              </div>
+              <div className="flex items-start space-x-4">
+                <div className="w-3 h-3 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-gray-900">Demo scheduled</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Priya Sharma - Samsung Galaxy S24</p>
                 </div>
                 <span className="text-xs text-muted-foreground">2h ago</span>
               </div>
@@ -179,14 +192,6 @@ const Dashboard = () => {
                   <p className="text-xs text-muted-foreground mt-0.5">Status: In Progress</p>
                 </div>
                 <span className="text-xs text-muted-foreground">1d ago</span>
-              </div>
-              <div className="flex items-start space-x-4">
-                <div className="w-3 h-3 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">New announcement posted</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Festival offers guidelines</p>
-                </div>
-                <span className="text-xs text-muted-foreground">2d ago</span>
               </div>
             </CardContent>
           </Card>
