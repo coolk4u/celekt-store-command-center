@@ -16,7 +16,6 @@ import { ArrowLeft, Calendar, User, Smartphone, Percent, MessageSquare, CheckCir
 const DemoDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [isEditing, setIsEditing] = useState(false);
 
   // Mock data - in real app this would come from API
   const [demoData, setDemoData] = useState({
@@ -27,7 +26,7 @@ const DemoDetails = () => {
     scheduledDate: '2024-01-18',
     scheduledTime: '14:00',
     status: 'Scheduled' as 'Scheduled' | 'In Progress' | 'Completed' | 'Cancelled',
-    mobileInterest: 'iPhone 15 Pro',
+    productInterest: 'iPhone 15 Pro',
     discountExpected: '10',
     managerApproval: 'Pending' as 'Pending' | 'Approved' | 'Rejected',
     managerComment: ''
@@ -38,6 +37,7 @@ const DemoDetails = () => {
       ...prev,
       managerApproval: approval as 'Pending' | 'Approved' | 'Rejected'
     }));
+    toast.success('Manager approval updated!');
   };
 
   const handleCommentChange = (comment: string) => {
@@ -52,6 +52,7 @@ const DemoDetails = () => {
       ...prev,
       discountExpected: discount
     }));
+    toast.success('Discount updated!');
   };
 
   const handleStatusChange = (status: string) => {
@@ -59,12 +60,15 @@ const DemoDetails = () => {
       ...prev,
       status: status as 'Scheduled' | 'In Progress' | 'Completed' | 'Cancelled'
     }));
+    toast.success('Demo status updated!');
   };
 
-  const handleSaveChanges = () => {
-    console.log('Demo updated:', demoData);
-    toast.success('Demo details updated successfully!');
-    setIsEditing(false);
+  const handleProductInterestChange = (product: string) => {
+    setDemoData(prev => ({
+      ...prev,
+      productInterest: product
+    }));
+    toast.success('Product interest updated!');
   };
 
   const handleMarkCompleted = () => {
@@ -95,7 +99,7 @@ const DemoDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
+    <div className="min-h-screen bg-white pb-20">
       <Header title="Demo Details" />
       
       <div className="max-w-md mx-auto p-4 space-y-6">
@@ -108,20 +112,20 @@ const DemoDetails = () => {
           Back to Demo Requests
         </Button>
 
-        {/* Customer Info */}
+        {/* Customer Info & Manager Details Combined */}
         <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center justify-between text-gray-900">
               <div className="flex items-center">
                 <User className="h-6 w-6 mr-2 text-primary" />
-                Customer Information
+                Customer & Demo Information
               </div>
               <Badge className={`${getStatusColor(demoData.status)} font-medium rounded-full px-3 py-1`}>
                 {demoData.status}
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4">
               <div>
                 <Label className="text-gray-600 text-sm">Name</Label>
@@ -142,59 +146,30 @@ const DemoDetails = () => {
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Demo Details */}
-        <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center justify-between text-gray-900">
-              <div className="flex items-center">
-                <Smartphone className="h-6 w-6 mr-2 text-primary" />
-                Demo Details
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditing(!isEditing)}
-                className="border-gray-200 hover:bg-gray-50 text-gray-900"
-              >
-                {isEditing ? 'Cancel' : 'Edit'}
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label className="text-gray-600 text-sm">Mobile Interest</Label>
-              {isEditing ? (
+            <div className="border-t pt-6 space-y-4">
+              <div className="space-y-2">
+                <Label className="text-gray-600 text-sm">Product Interest</Label>
                 <Input
-                  value={demoData.mobileInterest}
-                  onChange={(e) => setDemoData(prev => ({...prev, mobileInterest: e.target.value}))}
+                  value={demoData.productInterest}
+                  onChange={(e) => handleProductInterestChange(e.target.value)}
                   className="border-gray-200 bg-white text-gray-900"
                 />
-              ) : (
-                <p className="font-medium text-gray-900">{demoData.mobileInterest}</p>
-              )}
-            </div>
+              </div>
 
-            <div className="space-y-2">
-              <Label className="text-gray-600 text-sm">Expected Discount (%)</Label>
-              {isEditing ? (
+              <div className="space-y-2">
+                <Label className="text-gray-600 text-sm">Expected Discount (%)</Label>
                 <Input
                   type="number"
                   value={demoData.discountExpected}
                   onChange={(e) => handleDiscountChange(e.target.value)}
                   className="border-gray-200 bg-white text-gray-900"
                 />
-              ) : (
-                <p className="font-medium text-gray-900">{demoData.discountExpected}%</p>
-              )}
-            </div>
+              </div>
 
-            <div className="space-y-2">
-              <Label className="text-gray-600 text-sm">Manager Approval</Label>
-              {isEditing ? (
-                <Select onValueChange={handleApprovalChange} defaultValue={demoData.managerApproval}>
+              <div className="space-y-2">
+                <Label className="text-gray-600 text-sm">Manager Approval</Label>
+                <Select onValueChange={handleApprovalChange} value={demoData.managerApproval}>
                   <SelectTrigger className="border-gray-200 bg-white text-gray-900">
                     <SelectValue />
                   </SelectTrigger>
@@ -204,16 +179,10 @@ const DemoDetails = () => {
                     <SelectItem value="Rejected" className="text-gray-900">Rejected</SelectItem>
                   </SelectContent>
                 </Select>
-              ) : (
-                <Badge className={`${getApprovalColor(demoData.managerApproval)} font-medium rounded-full px-3 py-1 w-fit`}>
-                  {demoData.managerApproval}
-                </Badge>
-              )}
-            </div>
+              </div>
 
-            <div className="space-y-2">
-              <Label className="text-gray-600 text-sm">Manager Comment</Label>
-              {isEditing ? (
+              <div className="space-y-2">
+                <Label className="text-gray-600 text-sm">Manager Comment</Label>
                 <Textarea
                   value={demoData.managerComment}
                   onChange={(e) => handleCommentChange(e.target.value)}
@@ -221,17 +190,11 @@ const DemoDetails = () => {
                   className="border-gray-200 bg-white text-gray-900 placeholder:text-gray-500"
                   rows={3}
                 />
-              ) : (
-                <p className="font-medium text-gray-900">
-                  {demoData.managerComment || 'No comment added'}
-                </p>
-              )}
-            </div>
+              </div>
 
-            <div className="space-y-2">
-              <Label className="text-gray-600 text-sm">Demo Status</Label>
-              {isEditing ? (
-                <Select onValueChange={handleStatusChange} defaultValue={demoData.status}>
+              <div className="space-y-2">
+                <Label className="text-gray-600 text-sm">Demo Status</Label>
+                <Select onValueChange={handleStatusChange} value={demoData.status}>
                   <SelectTrigger className="border-gray-200 bg-white text-gray-900">
                     <SelectValue />
                   </SelectTrigger>
@@ -242,26 +205,13 @@ const DemoDetails = () => {
                     <SelectItem value="Cancelled" className="text-gray-900">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
-              ) : (
-                <Badge className={`${getStatusColor(demoData.status)} font-medium rounded-full px-3 py-1 w-fit`}>
-                  {demoData.status}
-                </Badge>
-              )}
+              </div>
             </div>
-
-            {isEditing && (
-              <Button
-                onClick={handleSaveChanges}
-                className="w-full bg-gradient-to-r from-primary to-red-600 hover:from-primary/90 hover:to-red-600/90 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 h-12 rounded-xl"
-              >
-                Save Changes
-              </Button>
-            )}
           </CardContent>
         </Card>
 
         {/* Action Buttons */}
-        {!isEditing && demoData.status !== 'Completed' && (
+        {demoData.status !== 'Completed' && (
           <div className="space-y-3">
             <Button
               onClick={handleMarkCompleted}

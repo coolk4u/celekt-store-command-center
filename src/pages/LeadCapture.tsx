@@ -18,7 +18,8 @@ const LeadCapture = () => {
     dob: '',
     email: '',
     phone: '',
-    location: ''
+    location: '',
+    productInterest: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -42,7 +43,7 @@ const LeadCapture = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
+    <div className="min-h-screen bg-white pb-20">
       <Header title="Lead Capture" />
       
       <div className="max-w-md mx-auto p-4 space-y-6">
@@ -146,6 +147,19 @@ const LeadCapture = () => {
                   placeholder="City, State"
                   value={formData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
+                  className="border-gray-200 bg-white text-gray-900 placeholder:text-gray-500"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="productInterest" className="text-gray-900 font-medium">
+                  Product Interest
+                </Label>
+                <Input
+                  id="productInterest"
+                  placeholder="e.g., iPhone 15 Pro, Samsung Galaxy S24"
+                  value={formData.productInterest}
+                  onChange={(e) => handleInputChange('productInterest', e.target.value)}
                   className="border-gray-200 bg-white text-gray-900 placeholder:text-gray-500"
                 />
               </div>
