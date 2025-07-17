@@ -5,7 +5,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { ClipboardCheck, AlertTriangle, Megaphone, TrendingUp, Calendar, Clock } from 'lucide-react';
+import { ClipboardCheck, AlertTriangle, Megaphone, TrendingUp, Calendar, Clock, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
@@ -83,6 +83,18 @@ const Dashboard = () => {
       icon: Megaphone
     },
     { 
+      title: 'Demo Requests', 
+      action: () => navigate('/demo-requests'), 
+      gradient: 'from-purple-600 to-purple-700',
+      icon: TrendingUp
+    },
+    { 
+      title: 'Approved Sales', 
+      action: () => navigate('/approved-sales'), 
+      gradient: 'from-green-600 to-green-700',
+      icon: CheckCircle
+    },
+    { 
       title: 'Raise New Issue', 
       action: () => navigate('/raise-issue'), 
       gradient: 'from-gray-600 to-gray-700',
@@ -91,7 +103,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
+    <div className="min-h-screen bg-white pb-20">
       <Header title={`Hello, ${user?.name?.split(' ')[0] || 'Manager'}!`} showProfile />
       
       <div className="max-w-md mx-auto p-4 space-y-6">
