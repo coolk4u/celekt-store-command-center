@@ -108,11 +108,15 @@ const Dashboard = () => {
       
       <div className="max-w-md mx-auto p-4 space-y-6">
         {/* Welcome Section */}
-        <div className="text-center py-4">
-          <h2 className="text-lg font-semibold text-gray-800 mb-1">
-            You have <span className="text-primary font-bold">4 tasks</span> today
-          </h2>
-          <p className="text-sm text-muted-foreground">Keep up the great work!</p>
+        <div className="relative text-center py-6">
+          {/* Green gradient strip */}
+          <div className="absolute inset-0 bg-gradient-to-r from-teal-400 via-emerald-500 to-teal-500 opacity-90 rounded-2xl"></div>
+          <div className="relative z-10">
+            <h2 className="text-lg font-semibold text-white mb-1">
+              You have <span className="font-bold">4 tasks</span> today
+            </h2>
+            <p className="text-sm text-white/90">Keep up the great work!</p>
+          </div>
         </div>
 
         {/* Summary Cards */}
