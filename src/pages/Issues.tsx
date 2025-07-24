@@ -1,65 +1,90 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, AlertTriangle, Clock } from 'lucide-react';
+import { Plus, AlertTriangle, Clock, ArrowLeft } from 'lucide-react';
 
 interface Issue {
   id: string;
   category: string;
   title: string;
   description: string;
-  status: 'Open' | 'In Progress' | 'Closed';
-  priority: 'Low' | 'Medium' | 'High';
+  status: 'Open' | 'In Progress' | 'Closed' | string;
+  priority: 'Low' | 'Medium' | 'High' | string;
   dateRaised: string;
 }
 
 const Issues = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');
-  
-  const [issues] = useState<Issue[]>([
-    {
-      id: '1',
-      category: 'Air Conditioning',
-      title: 'AC not cooling properly',
-      description: 'Main hall AC unit not maintaining temperature',
-      status: 'In Progress',
-      priority: 'High',
-      dateRaised: '2024-01-15'
-    },
-    {
-      id: '2',
-      category: 'Electrical',
-      title: 'Display light flickering',
-      description: 'LED display lights are flickering intermittently',
-      status: 'Open',
-      priority: 'Medium',
-      dateRaised: '2024-01-14'
-    },
-    {
-      id: '3',
-      category: 'Security Systems',
-      title: 'CCTV camera issue',
-      description: 'Camera 3 showing blurry image',
-      status: 'Open',
-      priority: 'Low',
-      dateRaised: '2024-01-13'
-    },
-    {
-      id: '4',
-      category: 'Cleanliness',
-      title: 'Floor tiles cracked',
-      description: 'Multiple tiles near entrance are cracked',
-      status: 'Closed',
-      priority: 'Medium',
-      dateRaised: '2024-01-10'
-    }
-  ]);
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getAccessToken = async () => {
+      const tokenUrl = 'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/oauth2/token';
+      const clientId = '3MVG9BBZP0d0A9KAcJnBKSzCfrRE_gMs1F.S7Uw0j_NByrWXPE6QjuPbeOqXjD7ud8_N3h5OFhGobUpSI.nRR';
+      const clientSecret = 'B36DBB1474A5226DEE9C3696BA1080A63AD857EBF1735E4816D7931E8EA79A6C';
+
+      const params = new URLSearchParams();
+      params.append('grant_type', 'client_credentials');
+      params.append('client_id', clientId);
+      params.append('client_secret', clientSecret);
+
+      try {
+        const response = await axios.post(tokenUrl, params, {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        });
+        setAccessToken(response.data.access_token);
+      } catch (error) {
+        console.error('Error fetching access token:', error);
+      }
+    };
+
+    getAccessToken();
+  }, []);
+
+  useEffect(() => {
+    if (!accessToken) return;
+
+    const fetchCases = async () => {
+      const query = `
+        SELECT Id, Subject, Description, Status, Priority, CreatedDate, Category__c
+        FROM Case WHERE Status != null AND Category__c != null
+      `.replace(/\s+/g, '+');
+
+      const url = `https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/data/v62.0/query?q=${query}`;
+
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const mapped: Issue[] = response.data.records.map((record: any) => ({
+          id: record.Id,
+          category: record.Category__c || 'General',
+          title: record.Subject || 'No Title',
+          description: record.Description || 'No Description',
+          status: record.Status || 'Open',
+          priority: record.Priority || 'Medium',
+          dateRaised: record.CreatedDate,
+        }));
+
+        setIssues(mapped);
+      } catch (error) {
+        console.error('Error fetching cases:', error);
+      }
+    };
+
+    fetchCases();
+  }, [accessToken]);
 
   const filteredIssues = issues.filter(issue => {
     if (filter === 'open') return issue.status !== 'Closed';
@@ -93,8 +118,18 @@ const Issues = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
       <Header title="Issues" />
-      
+
       <div className="max-w-md mx-auto p-4 space-y-6">
+        {/* Back to Home Arrow */}
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/')}
+          className="p-0 h-auto hover:bg-gray-100 rounded-lg px-2 py-1"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          <span className="font-medium text-gray-900">Back to Home</span>
+        </Button>
+
         {/* Action Button */}
         <Button
           onClick={() => navigate('/raise-issue')}
@@ -152,11 +187,11 @@ const Issues = () => {
                     </Badge>
                   </div>
                 </div>
-                
+
                 <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
                   {issue.description}
                 </p>
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500 font-medium">
                     Raised: {new Date(issue.dateRaised).toLocaleDateString()}
