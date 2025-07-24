@@ -1,265 +1,212 @@
-
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import Header from '@/components/Header';
-import BottomNavigation from '@/components/BottomNavigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
-import { ArrowLeft, Camera, IndianRupee, Receipt, Save } from 'lucide-react';
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Header from "@/components/Header";
+import BottomNavigation from "@/components/BottomNavigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, IndianRupee } from "lucide-react";
 
 const ApprovedSalesDetails = () => {
+  const location = useLocation();
   const navigate = useNavigate();
-  const { id } = useParams();
-  
-  const [billData, setBillData] = useState({
-    billNumber: '',
-    billAmount: '',
-    billPhoto: null as File | null
-  });
+  const opportunityId = location.pathname.split("/").pop();
 
-  // Mock data - in real app, fetch based on ID
-  const saleDetails = {
-    id: parseInt(id || '1'),
-    customerName: 'Rajesh Kumar',
-    phone: '+91 9876543210',
-    email: 'rajesh.kumar@email.com',
-    device: 'iPhone 15 Pro',
-    color: 'Natural Titanium',
-    storage: '256GB',
-    originalPrice: 134900,
-    discount: 10000,
-    finalPrice: 124900,
-    managerNotes: 'Approved for 7% discount. Customer is a repeat buyer. Valid for 7 days.',
-    approvedDate: '2024-07-15',
-    approvedBy: 'Manager - Suresh Singh',
-    status: 'Ready for Sale'
-  };
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [opportunity, setOpportunity] = useState<any>(null);
+  const [billNumber, setBillNumber] = useState("");
+  const [billingAmount, setBillingAmount] = useState("");
+  const [billingPhoto, setBillingPhoto] = useState("");
 
-  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setBillData({ ...billData, billPhoto: file });
-      toast.success('Bill photo captured successfully!');
-    }
-  };
+  const getAccessToken = async () => {
+    const url =
+      "https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/oauth2/token";
+    const clientId =
+      "3MVG9BBZP0d0A9KAcJnBKSzCfrRE_gMs1F.S7Uw0j_NByrWXPE6QjuPbeOqXjD7ud8_N3h5OFhGobUpSI.nRR";
+    const clientSecret =
+      "B36DBB1474A5226DEE9C3696BA1080A63AD857EBF1735E4816D7931E8EA79A6C";
 
-  const handleSaveBill = () => {
-    if (!billData.billNumber || !billData.billAmount) {
-      toast.error('Please fill in bill number and amount');
-      return;
-    }
+    const params = new URLSearchParams();
+    params.append("grant_type", "client_credentials");
+    params.append("client_id", clientId);
+    params.append("client_secret", clientSecret);
 
-    console.log('Bill data saved:', {
-      saleId: id,
-      ...billData,
-      billPhotoName: billData.billPhoto?.name
+    const response = await axios.post(url, params, {
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
     });
-    
-    toast.success('Bill details saved successfully!');
-    navigate('/approved-sales');
+
+    setAccessToken(response.data.access_token);
   };
+
+  useEffect(() => {
+    getAccessToken();
+  }, []);
+
+  useEffect(() => {
+    if (!accessToken || !opportunityId) return;
+
+    const fetchOpportunity = async () => {
+      const query = `
+        SELECT Id, Name, Account.Name, Account.Phone, Amount, StageName,
+               Manager_Comments__c, Expected_Discount__c, Approved_Date__c,
+               Converted_Lead__r.ProductInterest__c,
+               Bill_Number__c, Billing_Amount__c, Billing_Photo__c
+        FROM Opportunity
+        WHERE Id = '${opportunityId}'
+      `.replace(/\s+/g, "+");
+
+      const queryUrl = `https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/data/v62.0/query?q=${query}`;
+      const response = await axios.get(queryUrl, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      const record = response.data.records[0];
+      setOpportunity(record);
+      setBillNumber(record.Bill_Number__c || "");
+      setBillingAmount(record.Billing_Amount__c || "");
+      setBillingPhoto(record.Billing_Photo__c || "");
+    };
+
+    fetchOpportunity();
+  }, [accessToken, opportunityId]);
+
+  const handleSaveBill = async () => {
+    if (!accessToken || !opportunityId) return;
+
+    try {
+await axios.post(
+  `https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/apexrest/updateBilling`,
+  {
+    opportunityId,
+    billNumber,
+    billingAmount: parseFloat(billingAmount), // ✅ convert to number
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  }
+);
+
+      alert("Billing data saved successfully.");
+    } catch (error) {
+      console.error("Error saving bill details: ", error);
+      alert("Failed to save billing data.");
+    }
+  };
+
+  if (!opportunity) {
+    return <div className="p-4">Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-white pb-20">
       <Header title="Sale Details" />
-      
       <div className="max-w-md mx-auto p-4 space-y-6">
         <Button
           variant="ghost"
-          onClick={() => navigate('/approved-sales')}
+          onClick={() => navigate("/approved-sales")}
           className="mb-4 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Approved Sales
         </Button>
 
-        {/* Customer Details */}
         <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center justify-between text-gray-900">
-              <span>Customer Details</span>
-              <Badge className="bg-green-100 text-green-800">
-                {saleDetails.status}
-              </Badge>
+            <CardTitle className="text-gray-900">
+              {opportunity.Account?.Name}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-gray-600">Name:</p>
-                <p className="font-medium text-gray-900">{saleDetails.customerName}</p>
-              </div>
-              <div>
-                <p className="text-gray-600">Phone:</p>
-                <p className="font-medium text-gray-900">{saleDetails.phone}</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-gray-600">Email:</p>
-                <p className="font-medium text-gray-900">{saleDetails.email}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Device Details */}
-        <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-gray-900">Device Details</CardTitle>
-          </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-gray-600">Device:</p>
-                <p className="font-medium text-gray-900">{saleDetails.device}</p>
-              </div>
-              <div>
-                <p className="text-gray-600">Color:</p>
-                <p className="font-medium text-gray-900">{saleDetails.color}</p>
-              </div>
-              <div>
-                <p className="text-gray-600">Storage:</p>
-                <p className="font-medium text-gray-900">{saleDetails.storage}</p>
-              </div>
+            <div className="text-sm text-gray-600">
+              <p>Phone: {opportunity.Account?.Phone}</p>
+              <p>
+                Product: {opportunity.Converted_Lead__r?.ProductInterest__c}
+              </p>
+              <p>Status: {opportunity.StageName}</p>
+              <p>
+                Approved Date:{" "}
+                {opportunity.Approved_Date__c
+                  ? new Date(opportunity.Approved_Date__c).toLocaleDateString()
+                  : "N/A"}
+              </p>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Pricing Details */}
-        <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-gray-900">Pricing Details</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Original Price:</span>
-              <span className="flex items-center text-gray-900">
-                <IndianRupee className="h-3 w-3" />
-                {saleDetails.originalPrice.toLocaleString()}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Discount:</span>
-              <span className="flex items-center text-red-600">
-                -<IndianRupee className="h-3 w-3" />
-                {saleDetails.discount.toLocaleString()}
-              </span>
-            </div>
-            <div className="border-t pt-2">
-              <div className="flex justify-between text-lg font-semibold">
-                <span className="text-gray-900">Final Price:</span>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Original Price:</span>
+                <span className="flex items-center text-gray-900">
+                  <IndianRupee className="h-3 w-3 mr-1" />
+                  {(opportunity.Amount || 0).toLocaleString()}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>Discount (%):</span>
+                <span className="flex items-center text-red-600">
+                  {opportunity.Expected_Discount__c || 0}%
+                </span>
+              </div>
+              <div className="flex justify-between text-sm font-semibold">
+                <span>Final Price:</span>
                 <span className="flex items-center text-green-600">
-                  <IndianRupee className="h-4 w-4" />
-                  {saleDetails.finalPrice.toLocaleString()}
+                  <IndianRupee className="h-3 w-3 mr-1" />
+                  {(
+                    (opportunity.Amount || 0) *
+                    (1 - (opportunity.Expected_Discount__c || 0) / 100)
+                  ).toFixed(0)}
                 </span>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Manager Approval */}
-        <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-gray-900">Manager Approval</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
             <div>
-              <p className="text-sm text-gray-600">Approved By:</p>
-              <p className="font-medium text-gray-900">{saleDetails.approvedBy}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Approval Date:</p>
-              <p className="font-medium text-gray-900">
-                {new Date(saleDetails.approvedDate).toLocaleDateString()}
+              <p className="text-xs text-gray-500 mb-1">Manager Notes:</p>
+              <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                {opportunity.Manager_Comments__c}
               </p>
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Notes:</p>
-              <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded">{saleDetails.managerNotes}</p>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Bill Capture */}
-        <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center text-gray-900">
-              <Receipt className="h-5 w-5 mr-2" />
-              Bill Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="billNumber" className="text-gray-900 font-medium">
-                Bill Number *
-              </Label>
-              <Input
-                id="billNumber"
-                placeholder="Enter bill number"
-                value={billData.billNumber}
-                onChange={(e) => setBillData({...billData, billNumber: e.target.value})}
-                className="border-gray-200 bg-white text-gray-900"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="billAmount" className="text-gray-900 font-medium">
-                Bill Amount *
-              </Label>
-              <Input
-                id="billAmount"
-                type="number"
-                placeholder="Enter bill amount"
-                value={billData.billAmount}
-                onChange={(e) => setBillData({...billData, billAmount: e.target.value})}
-                className="border-gray-200 bg-white text-gray-900"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="billPhoto" className="text-gray-900 font-medium">
-                Bill Photo
-              </Label>
-              <div className="flex items-center space-x-2">
+            <div className="space-y-4 mt-4">
+              <div>
+                <label className="text-sm text-gray-600">Bill Number</label>
                 <Input
-                  id="billPhoto"
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handlePhotoCapture}
-                  className="border-gray-200 bg-white text-gray-900 flex-1"
+                  value={billNumber}
+                  onChange={(e) => setBillNumber(e.target.value)}
+                  placeholder="Enter bill number"
                 />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => document.getElementById('billPhoto')?.click()}
-                  className="shrink-0"
-                >
-                  <Camera className="h-4 w-4" />
-                </Button>
               </div>
-              {billData.billPhoto && (
-                <p className="text-sm text-green-600">
-                  Photo captured: {billData.billPhoto.name}
-                </p>
-              )}
+              <div>
+                <label className="text-sm text-gray-600">Billing Amount</label>
+                <Input
+                  value={billingAmount}
+                  onChange={(e) => setBillingAmount(e.target.value)}
+                  placeholder="Enter amount"
+                />
+              </div>
+              {/* <div>
+                <label className="text-sm text-gray-600">
+                  Billing Photo URL
+                </label>
+                <Textarea
+                  value={billingPhoto}
+                  onChange={(e) => setBillingPhoto(e.target.value)}
+                  placeholder="Paste photo URL"
+                />
+              </div> */}
+              <Button
+                onClick={handleSaveBill}
+                className="w-full bg-primary hover:bg-primary/90"
+              >
+                Save Billing Info
+              </Button>
             </div>
-
-            <Button
-              onClick={handleSaveBill}
-              className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 h-12 rounded-xl"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save Bill Details
-            </Button>
           </CardContent>
         </Card>
       </div>
-
       <BottomNavigation />
     </div>
   );
