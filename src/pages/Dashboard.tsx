@@ -170,26 +170,26 @@ const Dashboard = () => {
         {/* Quick Actions */}
         <div className="space-y-4">
           <h3 className="text-lg font-bold text-gray-900">Quick Actions</h3>
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             {quickActions.map((action, index) => (
               <div
                 key={index}
                 onClick={action.action}
-                className={`relative w-full h-16 bg-gradient-to-r ${action.gradient} rounded-2xl cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${action.shadowColor} shadow-lg border border-white/10 backdrop-blur-sm overflow-hidden group`}
+                className={`relative h-20 bg-gradient-to-r ${action.gradient} rounded-xl cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${action.shadowColor} shadow-md border border-white/5 overflow-hidden group`}
               >
                 {/* Glass effect overlay */}
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+                <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
                 
                 {/* Content */}
-                <div className="relative z-10 flex items-center justify-center h-full px-6">
-                  <action.icon className="h-6 w-6 text-white mr-3 group-hover:scale-110 transition-transform duration-200" />
-                  <span className="text-white font-semibold text-lg group-hover:text-white/90 transition-colors duration-200">
+                <div className="relative z-10 flex flex-col items-center justify-center h-full px-3 text-center">
+                  <action.icon className="h-5 w-5 text-white mb-1.5 group-hover:scale-110 transition-transform duration-200" />
+                  <span className="text-white font-semibold text-sm leading-tight group-hover:text-white/90 transition-colors duration-200">
                     {action.title}
                   </span>
                 </div>
                 
                 {/* Subtle highlight */}
-                <div className="absolute top-0 left-0 right-0 h-0.5 bg-white/30"></div>
+                <div className="absolute top-0 left-0 right-0 h-px bg-white/20"></div>
               </div>
             ))}
           </div>
