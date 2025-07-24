@@ -22,6 +22,7 @@ import DemoRequests from "./pages/DemoRequests";
 import DemoDetails from "./pages/DemoDetails";
 import ApprovedSales from "./pages/ApprovedSales";
 import ApprovedSalesDetails from "./pages/ApprovedSalesDetails";
+import FetchData  from "./pages/FetchData"; // Assuming this is the correct import path for FetchData
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <BrowserRouter>
+        <FetchData />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={
@@ -74,11 +76,8 @@ const App = () => (
                 <DemoRequests />
               </ProtectedRoute>
             } />
-            <Route path="/demo-details/:id" element={
-              <ProtectedRoute>
-                <DemoDetails />
-              </ProtectedRoute>
-            } />
+            <Route path="/demo-details/:id" element={<DemoDetails />} />
+
             <Route path="/approved-sales" element={
               <ProtectedRoute>
                 <ApprovedSales />
