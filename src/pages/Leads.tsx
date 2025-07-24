@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
@@ -7,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Users, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import axios from 'axios';
 
 interface Lead {
   id: string;
@@ -15,46 +15,88 @@ interface Lead {
   email: string;
   phone: string;
   location: string;
-  status: 'New' | 'Contacted' | 'Interested' | 'Converted' | 'Lost';
+  status: string;
   dateCreated: string;
 }
 
 const Leads = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<'all' | 'new' | 'contacted' | 'converted'>('all');
-  
-  const [leads] = useState<Lead[]>([
-    {
-      id: '1',
-      firstName: 'Rajesh',
-      lastName: 'Kumar',
-      email: 'rajesh.kumar@email.com',
-      phone: '+91 98765 43210',
-      location: 'Mumbai',
-      status: 'New',
-      dateCreated: '2024-01-15'
-    },
-    {
-      id: '2',
-      firstName: 'Priya',
-      lastName: 'Sharma',
-      email: 'priya.sharma@email.com',
-      phone: '+91 87654 32109',
-      location: 'Delhi',
-      status: 'Contacted',
-      dateCreated: '2024-01-14'
-    },
-    {
-      id: '3',
-      firstName: 'Amit',
-      lastName: 'Patel',
-      email: 'amit.patel@email.com',
-      phone: '+91 76543 21098',
-      location: 'Bangalore',
-      status: 'Converted',
-      dateCreated: '2024-01-12'
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+
+  // Token Fetcher
+  const getAccessToken = async () => {
+    const tokenUrl = 'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/oauth2/token';
+    const clientId = '3MVG9BBZP0d0A9KAcJnBKSzCfrRE_gMs1F.S7Uw0j_NByrWXPE6QjuPbeOqXjD7ud8_N3h5OFhGobUpSI.nRR';
+    const clientSecret = 'B36DBB1474A5226DEE9C3696BA1080A63AD857EBF1735E4816D7931E8EA79A6C';
+
+    const params = new URLSearchParams();
+    params.append('grant_type', 'client_credentials');
+    params.append('client_id', clientId);
+    params.append('client_secret', clientSecret);
+
+    try {
+      const res = await axios.post(tokenUrl, params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+      setAccessToken(res.data.access_token);
+      console.log('✅ Access Token:', res.data.access_token);
+    } catch (error) {
+      console.error('❌ Token Error:', error);
     }
-  ]);
+  };
+
+  // Lead Fetcher
+  const fetchLeads = async (token: string) => {
+    try {
+      const queryUrl =
+        "https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/data/v62.0/query?q=" +
+        "SELECT+Id,FirstName,LastName,Email,Phone,Status,CreatedDate,Location__c+FROM+Lead+WHERE+Location__c+!=+null";
+
+      const res = await axios.get(queryUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      interface SalesforceLeadRecord {
+        Id: string;
+        FirstName?: string;
+        LastName?: string;
+        Email?: string;
+        Phone?: string;
+        Location__c?: string;
+        Status?: string;
+        CreatedDate?: string;
+      }
+
+      const sfLeads: Lead[] = res.data.records.map((l: SalesforceLeadRecord) => ({
+        id: l.Id,
+        firstName: l.FirstName || '',
+        lastName: l.LastName || '',
+        email: l.Email || '',
+        phone: l.Phone || '',
+        location: l.Location__c || '',
+        status: l.Status || 'New',
+        dateCreated: l.CreatedDate || '',
+      }));
+
+      setLeads(sfLeads);
+      console.log('📦 Leads:', sfLeads);
+    } catch (error) {
+      console.error('❌ Error fetching leads:', error);
+    }
+  };
+
+  useEffect(() => {
+    getAccessToken();
+  }, []);
+
+  useEffect(() => {
+    if (accessToken) fetchLeads(accessToken);
+  }, [accessToken]);
 
   const filteredLeads = leads.filter(lead => {
     if (filter === 'new') return lead.status === 'New';
@@ -92,8 +134,28 @@ const Leads = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
-      <Header title="Lead Management" />
-      
+      <div className="pt-6 pb-2">
+        <div className="flex items-center justify-center gap-2 relative left-[-80px]">
+    <button
+      onClick={() => navigate('/')}
+      className="text-gray-700 hover:text-gray-900"
+      aria-label="Go back"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+    <h1 className="text-xl font-bold text-gray-900">Lead Management</h1>
+  </div>
+</div>
+
+
       <div className="max-w-md mx-auto p-4 space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-4">
@@ -106,7 +168,7 @@ const Leads = () => {
               <p className="text-sm text-gray-600">Total Leads</p>
             </CardContent>
           </Card>
-          
+
           <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
             <CardContent className="p-4 text-center">
               <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-2">
@@ -129,38 +191,17 @@ const Leads = () => {
 
         {/* Filter Buttons */}
         <div className="flex space-x-2 overflow-x-auto">
-          <Button
-            variant={filter === 'all' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilter('all')}
-            className={`rounded-xl whitespace-nowrap ${filter === 'all' ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50 text-gray-900'}`}
-          >
-            All ({stats.total})
-          </Button>
-          <Button
-            variant={filter === 'new' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilter('new')}
-            className={`rounded-xl whitespace-nowrap ${filter === 'new' ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50 text-gray-900'}`}
-          >
-            New ({stats.new})
-          </Button>
-          <Button
-            variant={filter === 'contacted' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilter('contacted')}
-            className={`rounded-xl whitespace-nowrap ${filter === 'contacted' ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50 text-gray-900'}`}
-          >
-            Contacted ({stats.contacted})
-          </Button>
-          <Button
-            variant={filter === 'converted' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilter('converted')}
-            className={`rounded-xl whitespace-nowrap ${filter === 'converted' ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50 text-gray-900'}`}
-          >
-            Converted ({stats.converted})
-          </Button>
+          {(['all', 'new', 'contacted', 'converted'] as const).map(type => (
+            <Button
+              key={type}
+              variant={filter === type ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilter(type)}
+              className={`rounded-xl whitespace-nowrap ${filter === type ? 'bg-gradient-to-r from-primary to-red-600 shadow-md' : 'border-gray-200 hover:bg-gray-50 text-gray-900'}`}
+            >
+              {type.charAt(0).toUpperCase() + type.slice(1)} ({stats[type] ?? stats.total})
+            </Button>
+          ))}
         </div>
 
         {/* Leads List */}
@@ -180,7 +221,7 @@ const Leads = () => {
                     {lead.status}
                   </Badge>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500 font-medium">
                     Created: {new Date(lead.dateCreated).toLocaleDateString()}
