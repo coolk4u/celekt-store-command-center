@@ -175,7 +175,7 @@ const Dashboard = () => {
               <div
                 key={index}
                 onClick={action.action}
-                className={`relative w-full h-16 bg-gradient-to-r ${action.gradient} rounded-2xl cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${action.shadowColor} shadow-lg border border-white/20 backdrop-blur-sm overflow-hidden group`}
+                className={`relative w-full h-16 bg-gradient-to-r ${action.gradient} rounded-2xl cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${action.shadowColor} shadow-lg border border-white/10 backdrop-blur-sm overflow-hidden group`}
               >
                 {/* Glass effect overlay */}
                 <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
