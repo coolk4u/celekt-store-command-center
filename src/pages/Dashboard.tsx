@@ -73,32 +73,37 @@ const Dashboard = () => {
     { 
       title: 'Start Daily Audit', 
       action: () => navigate('/audit'), 
-      gradient: 'from-primary to-red-600',
-      icon: ClipboardCheck
+      gradient: 'from-red-500 to-red-600',
+      icon: ClipboardCheck,
+      shadowColor: 'shadow-red-200'
     },
     { 
       title: 'Capture New Lead', 
       action: () => navigate('/lead-capture'), 
-      gradient: 'from-blue-600 to-blue-700',
-      icon: Megaphone
+      gradient: 'from-blue-500 to-blue-600',
+      icon: Megaphone,
+      shadowColor: 'shadow-blue-200'
     },
     { 
       title: 'Demo Requests', 
       action: () => navigate('/demo-requests'), 
-      gradient: 'from-purple-600 to-purple-700',
-      icon: TrendingUp
+      gradient: 'from-purple-500 to-purple-600',
+      icon: TrendingUp,
+      shadowColor: 'shadow-purple-200'
     },
     { 
       title: 'Approved Sales', 
       action: () => navigate('/approved-sales'), 
-      gradient: 'from-green-600 to-green-700',
-      icon: CheckCircle
+      gradient: 'from-green-500 to-green-600',
+      icon: CheckCircle,
+      shadowColor: 'shadow-green-200'
     },
     { 
       title: 'Raise New Issue', 
       action: () => navigate('/raise-issue'), 
-      gradient: 'from-gray-600 to-gray-700',
-      icon: AlertTriangle
+      gradient: 'from-gray-500 to-gray-600',
+      icon: AlertTriangle,
+      shadowColor: 'shadow-gray-200'
     },
   ];
 
@@ -167,15 +172,25 @@ const Dashboard = () => {
           <h3 className="text-lg font-bold text-gray-900">Quick Actions</h3>
           <div className="space-y-3">
             {quickActions.map((action, index) => (
-              <Button
+              <div
                 key={index}
                 onClick={action.action}
-                className={`w-full h-14 bg-gradient-to-r ${action.gradient} hover:shadow-lg text-white font-medium rounded-2xl transition-all duration-200 hover:-translate-y-0.5`}
-                size="lg"
+                className={`relative w-full h-16 bg-gradient-to-r ${action.gradient} rounded-2xl cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${action.shadowColor} shadow-lg border border-white/20 backdrop-blur-sm overflow-hidden group`}
               >
-                <action.icon className="h-5 w-5 mr-2" />
-                {action.title}
-              </Button>
+                {/* Glass effect overlay */}
+                <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+                
+                {/* Content */}
+                <div className="relative z-10 flex items-center justify-center h-full px-6">
+                  <action.icon className="h-6 w-6 text-white mr-3 group-hover:scale-110 transition-transform duration-200" />
+                  <span className="text-white font-semibold text-lg group-hover:text-white/90 transition-colors duration-200">
+                    {action.title}
+                  </span>
+                </div>
+                
+                {/* Subtle highlight */}
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-white/30"></div>
+              </div>
             ))}
           </div>
         </div>
