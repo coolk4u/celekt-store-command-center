@@ -103,14 +103,14 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white pb-20">
+    <div className="min-h-screen bg-gray-50 pb-20">
       <Header title={`Hello, ${user?.name || 'Manager'}!`} showProfile />
       
       <div className="max-w-md mx-auto p-4 space-y-6">
         {/* Welcome Section */}
         <div className="relative text-center py-6">
           {/* Green gradient strip */}
-          <div className="absolute inset-0 bg-gradient-to-r from-teal-400 via-emerald-500 to-teal-500 opacity-90 rounded-2xl"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-teal-400 via-emerald-500 to-teal-500 opacity-90 rounded-2xl shadow-lg"></div>
           <div className="relative z-10">
             <h2 className="text-lg font-semibold text-white mb-1">
               You have <span className="font-bold">4 tasks</span> today
@@ -124,14 +124,14 @@ const Dashboard = () => {
           {summaryCards.map((card, index) => (
             <Card 
               key={index} 
-              className="cursor-pointer hover:shadow-lg transition-all duration-200 border-0 shadow-md bg-white hover:-translate-y-1" 
+              className="cursor-pointer hover:shadow-xl transition-all duration-200 border border-gray-200 shadow-lg bg-white hover:-translate-y-1 backdrop-blur-sm" 
               onClick={card.action}
             >
               <CardContent className="p-4">
-                <div className={`w-12 h-12 rounded-2xl ${card.iconBg} flex items-center justify-center mb-3`}>
+                <div className={`w-12 h-12 rounded-2xl ${card.iconBg} flex items-center justify-center mb-3 shadow-sm`}>
                   <card.icon className={`h-6 w-6 ${card.color}`} />
                 </div>
-                <p className="text-xs text-muted-foreground mb-1 font-medium">{card.title}</p>
+                <p className="text-xs text-gray-600 mb-1 font-medium uppercase tracking-wide">{card.title}</p>
                 <p className="text-lg font-bold text-gray-900">{card.value}</p>
               </CardContent>
             </Card>
@@ -183,10 +183,10 @@ const Dashboard = () => {
         {/* Recent Activity */}
         <div className="space-y-4">
           <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
-          <Card className="border-0 shadow-md bg-white">
+          <Card className="border border-gray-200 shadow-lg bg-white">
             <CardContent className="p-5 space-y-4">
               <div className="flex items-start space-x-4">
-                <div className="w-3 h-3 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full mt-1.5 flex-shrink-0 shadow-sm"></div>
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-gray-900">New lead captured</p>
                   <p className="text-xs text-muted-foreground mt-0.5">Rajesh Kumar - iPhone 15 Pro interest</p>
@@ -194,7 +194,7 @@ const Dashboard = () => {
                 <span className="text-xs text-muted-foreground">1h ago</span>
               </div>
               <div className="flex items-start space-x-4">
-                <div className="w-3 h-3 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                <div className="w-3 h-3 bg-blue-500 rounded-full mt-1.5 flex-shrink-0 shadow-sm"></div>
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-gray-900">Demo scheduled</p>
                   <p className="text-xs text-muted-foreground mt-0.5">Priya Sharma - Samsung Galaxy S24</p>
@@ -202,7 +202,7 @@ const Dashboard = () => {
                 <span className="text-xs text-muted-foreground">2h ago</span>
               </div>
               <div className="flex items-start space-x-4">
-                <div className="w-3 h-3 bg-orange-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                <div className="w-3 h-3 bg-orange-500 rounded-full mt-1.5 flex-shrink-0 shadow-sm"></div>
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-gray-900">AC maintenance issue raised</p>
                   <p className="text-xs text-muted-foreground mt-0.5">Status: In Progress</p>
