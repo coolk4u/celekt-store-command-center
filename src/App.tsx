@@ -74,11 +74,8 @@ const App = () => (
                 <DemoRequests />
               </ProtectedRoute>
             } />
-            <Route path="/demo-details/:id" element={
-              <ProtectedRoute>
-                <DemoDetails />
-              </ProtectedRoute>
-            } />
+            <Route path="/demo-details/:id" element={<DemoDetails />} />
+
             <Route path="/approved-sales" element={
               <ProtectedRoute>
                 <ApprovedSales />
