@@ -1,6 +1,6 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,13 +14,13 @@ import { AlertTriangle, ArrowLeft, User, Store } from 'lucide-react';
 
 const RaiseIssue = () => {
   const navigate = useNavigate();
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [requestType, setRequestType] = useState<'customer' | 'store' | null>(null);
   const [formData, setFormData] = useState({
     category: '',
     title: '',
     description: '',
     priority: 'Medium',
-    // Customer request specific fields
     customerName: '',
     customerPhone: '',
     deviceModel: '',
@@ -49,9 +49,32 @@ const RaiseIssue = () => {
     'Other'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const getAccessToken = async () => {
+    const params = new URLSearchParams();
+    params.append('grant_type', 'client_credentials');
+    params.append('client_id', '3MVG9BBZP0d0A9KAcJnBKSzCfrRE_gMs1F.S7Uw0j_NByrWXPE6QjuPbeOqXjD7ud8_N3h5OFhGobUpSI.nRR');
+    params.append('client_secret', 'B36DBB1474A5226DEE9C3696BA1080A63AD857EBF1735E4816D7931E8EA79A6C');
+
+    try {
+      const res = await axios.post(
+        'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/oauth2/token',
+        params,
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      );
+      setAccessToken(res.data.access_token);
+    } catch (err) {
+      console.error('Access token error:', err);
+      toast.error('Authentication failed');
+    }
+  };
+
+  useEffect(() => {
+    getAccessToken();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.category || !formData.title || !formData.description) {
       toast.error('Please fill in all required fields');
       return;
@@ -62,13 +85,46 @@ const RaiseIssue = () => {
       return;
     }
 
-    console.log('Issue submitted:', {
-      requestType,
-      ...formData
-    });
-    
-    toast.success(`${requestType === 'customer' ? 'Customer' : 'Store'} issue submitted successfully!`);
-    navigate('/issues');
+    const caseData: any = {
+      Subject: formData.title,
+      Description: formData.description,
+      Priority: formData.priority,
+      RecordTypeId:
+        requestType === 'customer'
+          ? '012fI0000019obJQAQ'
+          : '012fI0000019ocvQAA',
+      Category__c: formData.category,
+    };
+
+    if (requestType === 'customer') {
+      caseData.Contact = {
+        Name: formData.customerName,
+        Phone: formData.customerPhone
+      };
+      caseData.Device_Model__c = formData.deviceModel;
+      caseData.Issue_Type__c = formData.issueType;
+    }
+
+    try {
+      await axios.post(
+        'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/apexrest/CreateIssueCase',
+        caseData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      toast.success(
+        `${requestType === 'customer' ? 'Customer' : 'Store'} issue submitted successfully!`
+      );
+      navigate('/issues');
+    } catch (err) {
+      console.error('Submit error:', err);
+      toast.error('Error submitting issue');
+    }
   };
 
   const resetForm = () => {
@@ -89,7 +145,6 @@ const RaiseIssue = () => {
     return (
       <div className="min-h-screen bg-white pb-20">
         <Header title="Raise Issue" />
-        
         <div className="max-w-md mx-auto p-4 space-y-6">
           <Button
             variant="ghost"
@@ -108,8 +163,6 @@ const RaiseIssue = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-gray-600 mb-6">Choose the type of issue you want to report:</p>
-              
               <Button
                 onClick={() => setRequestType('customer')}
                 className="w-full h-16 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-2xl flex items-center justify-center space-x-3"
@@ -120,7 +173,6 @@ const RaiseIssue = () => {
                   <div className="text-sm opacity-90">Device issues, complaints</div>
                 </div>
               </Button>
-
               <Button
                 onClick={() => setRequestType('store')}
                 className="w-full h-16 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-medium rounded-2xl flex items-center justify-center space-x-3"
@@ -134,7 +186,6 @@ const RaiseIssue = () => {
             </CardContent>
           </Card>
         </div>
-
         <BottomNavigation />
       </div>
     );
@@ -143,7 +194,6 @@ const RaiseIssue = () => {
   return (
     <div className="min-h-screen bg-white pb-20">
       <Header title={`${requestType === 'customer' ? 'Customer' : 'Store'} Issue`} />
-      
       <div className="max-w-md mx-auto p-4 space-y-6">
         <Button
           variant="ghost"
@@ -153,163 +203,107 @@ const RaiseIssue = () => {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Request Type
         </Button>
-
         <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center text-gray-900">
-              {requestType === 'customer' ? <User className="h-6 w-6 mr-2 text-blue-600" /> : <Store className="h-6 w-6 mr-2 text-gray-600" />}
+              {requestType === 'customer' ? (
+                <User className="h-6 w-6 mr-2 text-blue-600" />
+              ) : (
+                <Store className="h-6 w-6 mr-2 text-gray-600" />
+              )}
               {requestType === 'customer' ? 'Customer Issue Report' : 'Store Issue Report'}
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <CardContent className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Label>Category</Label>
+                <Select
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, category: value })
+                  }
+                  value={formData.category}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(requestType === 'customer'
+                      ? customerIssueTypes
+                      : storeCategories
+                    ).map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Title</Label>
+                <Input
+                  placeholder="Issue Title"
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                />
+              </div>
+
+              <div>
+                <Label>Description</Label>
+                <Textarea
+                  placeholder="Describe the issue"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                />
+              </div>
+
               {requestType === 'customer' && (
                 <>
-                  <div className="space-y-2">
-                    <Label htmlFor="customerName" className="text-gray-900 font-medium">
-                      Customer Name *
-                    </Label>
+                  <div>
+                    <Label>Customer Name</Label>
                     <Input
-                      id="customerName"
-                      placeholder="Enter customer name"
+                      placeholder="Customer Name"
                       value={formData.customerName}
-                      onChange={(e) => setFormData({...formData, customerName: e.target.value})}
-                      className="border-gray-200 bg-white text-gray-900"
-                      required
+                      onChange={(e) =>
+                        setFormData({ ...formData, customerName: e.target.value })
+                      }
                     />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="customerPhone" className="text-gray-900 font-medium">
-                      Customer Phone *
-                    </Label>
+                  <div>
+                    <Label>Customer Phone</Label>
                     <Input
-                      id="customerPhone"
-                      placeholder="Enter customer phone number"
+                      placeholder="Phone Number"
                       value={formData.customerPhone}
-                      onChange={(e) => setFormData({...formData, customerPhone: e.target.value})}
-                      className="border-gray-200 bg-white text-gray-900"
-                      required
+                      onChange={(e) =>
+                        setFormData({ ...formData, customerPhone: e.target.value })
+                      }
                     />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="deviceModel" className="text-gray-900 font-medium">
-                      Device Model
-                    </Label>
+                  <div>
+                    <Label>Device Model</Label>
                     <Input
-                      id="deviceModel"
-                      placeholder="Enter device model (e.g., iPhone 15 Pro)"
+                      placeholder="Device Model"
                       value={formData.deviceModel}
-                      onChange={(e) => setFormData({...formData, deviceModel: e.target.value})}
-                      className="border-gray-200 bg-white text-gray-900"
+                      onChange={(e) =>
+                        setFormData({ ...formData, deviceModel: e.target.value })
+                      }
                     />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="issueType" className="text-gray-900 font-medium">
-                      Issue Type *
-                    </Label>
-                    <Select onValueChange={(value) => setFormData({...formData, issueType: value})}>
-                      <SelectTrigger className="border-gray-200 bg-white text-gray-900">
-                        <SelectValue placeholder="Select issue type" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
-                        {customerIssueTypes.map((type) => (
-                          <SelectItem key={type} value={type} className="text-gray-900">
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                   </div>
                 </>
               )}
 
-              <div className="space-y-2">
-                <Label htmlFor="category" className="text-gray-900 font-medium">
-                  {requestType === 'customer' ? 'Category' : 'Category'} *
-                </Label>
-                <Select onValueChange={(value) => setFormData({...formData, category: value})}>
-                  <SelectTrigger className="border-gray-200 bg-white text-gray-900">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {requestType === 'customer' ? 
-                      customerIssueTypes.map((category) => (
-                        <SelectItem key={category} value={category} className="text-gray-900">
-                          {category}
-                        </SelectItem>
-                      )) :
-                      storeCategories.map((category) => (
-                        <SelectItem key={category} value={category} className="text-gray-900">
-                          {category}
-                        </SelectItem>
-                      ))
-                    }
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="title" className="text-gray-900 font-medium">
-                  Short Description *
-                </Label>
-                <Input
-                  id="title"
-                  placeholder="Brief description of the issue"
-                  value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  className="border-gray-200 bg-white text-gray-900"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-gray-900 font-medium">
-                  {requestType === 'customer' ? 'Problem Summary' : 'Detailed Description'} *
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder={requestType === 'customer' ? 
-                    "Describe the customer's problem in detail..." :
-                    "Provide detailed information about the issue..."
-                  }
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  rows={4}
-                  className="border-gray-200 bg-white text-gray-900"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="priority" className="text-gray-900 font-medium">
-                  Priority Level
-                </Label>
-                <Select onValueChange={(value) => setFormData({...formData, priority: value})} defaultValue="Medium">
-                  <SelectTrigger className="border-gray-200 bg-white text-gray-900">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="Low" className="text-gray-900">Low</SelectItem>
-                    <SelectItem value="Medium" className="text-gray-900">Medium</SelectItem>
-                    <SelectItem value="High" className="text-gray-900">High</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-primary to-red-600 hover:from-primary/90 hover:to-red-600/90 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 h-12 rounded-xl"
-              >
-                Submit {requestType === 'customer' ? 'Customer' : 'Store'} Issue
+              <Button type="submit" className="w-full">
+                Submit Issue
               </Button>
             </form>
           </CardContent>
         </Card>
       </div>
-
       <BottomNavigation />
     </div>
   );
