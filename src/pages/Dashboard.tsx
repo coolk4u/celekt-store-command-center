@@ -110,7 +110,8 @@ const Dashboard = () => {
       action: () => navigate('/documents'), 
       gradient: 'from-indigo-500 to-indigo-600',
       icon: BookOpen,
-      shadowColor: 'shadow-indigo-200'
+      shadowColor: 'shadow-indigo-200',
+      textColor: 'text-black'
     },
   ];
 
@@ -182,15 +183,15 @@ const Dashboard = () => {
               <div
                 key={index}
                 onClick={action.action}
-                className={`relative h-20 bg-gradient-to-r ${action.gradient} rounded-xl cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${action.shadowColor} shadow-md border border-white/5 overflow-hidden group`}
+                className={`relative h-20 bg-gradient-to-r ${action.gradient} rounded-xl cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${action.shadowColor} shadow-md overflow-hidden group`}
               >
                 {/* Glass effect overlay */}
                 <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
                 
                 {/* Content */}
                 <div className="relative z-10 flex flex-col items-center justify-center h-full px-3 text-center">
-                  <action.icon className="h-5 w-5 text-white mb-1.5 group-hover:scale-110 transition-transform duration-200" />
-                  <span className="text-white font-semibold text-sm leading-tight group-hover:text-white/90 transition-colors duration-200">
+                  <action.icon className={`h-5 w-5 ${action.textColor || 'text-white'} mb-1.5 group-hover:scale-110 transition-transform duration-200`} />
+                  <span className={`${action.textColor || 'text-white'} font-semibold text-sm leading-tight group-hover:opacity-90 transition-colors duration-200`}>
                     {action.title}
                   </span>
                 </div>
