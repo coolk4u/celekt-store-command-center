@@ -5,7 +5,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { ClipboardCheck, AlertTriangle, Megaphone, TrendingUp, Calendar, Clock, CheckCircle } from 'lucide-react';
+import { ClipboardCheck, AlertTriangle, Megaphone, TrendingUp, Calendar, Clock, CheckCircle, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
@@ -104,6 +104,13 @@ const Dashboard = () => {
       gradient: 'from-gray-500 to-gray-600',
       icon: AlertTriangle,
       shadowColor: 'shadow-gray-200'
+    },
+    { 
+      title: 'Training Material', 
+      action: () => navigate('/documents'), 
+      gradient: 'from-indigo-500 to-indigo-600',
+      icon: BookOpen,
+      shadowColor: 'shadow-indigo-200'
     },
   ];
 
