@@ -1,5 +1,7 @@
+// ✅ Full Updated: Audit.tsx with Salesforce Record Creation and Auth Token Integration
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,50 +22,45 @@ interface AuditItem {
 }
 
 const Audit = () => {
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [auditDate] = useState(new Date().toISOString().split('T')[0]);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [auditItems, setAuditItems] = useState<AuditItem[]>([
-    {
-      id: 'cleaning',
-      question: 'Store cleaned?',
-      answer: null,
-      comments: '',
-      photoRequired: true
-    },
-    {
-      id: 'mopping',
-      question: 'Floor mopping done?',
-      answer: null,
-      comments: '',
-      photoRequired: true
-    },
-    {
-      id: 'opening',
-      question: 'Store opened on time?',
-      answer: null,
-      comments: '',
-      photoRequired: false
-    },
-    {
-      id: 'signage',
-      question: 'Signages working?',
-      answer: null,
-      comments: '',
-      photoRequired: true
-    },
-    {
-      id: 'stock',
-      question: 'Stock displayed properly?',
-      answer: null,
-      comments: '',
-      photoRequired: true
-    }
+    { id: 'cleaning', question: 'Store cleaned?', answer: null, comments: '', photoRequired: true },
+    { id: 'mopping', question: 'Floor mopping done?', answer: null, comments: '', photoRequired: true },
+    { id: 'opening', question: 'Store opened on time?', answer: null, comments: '', photoRequired: false },
+    { id: 'signage', question: 'Signages working?', answer: null, comments: '', photoRequired: true },
+    { id: 'stock', question: 'Stock displayed properly?', answer: null, comments: '', photoRequired: true }
   ]);
 
+  // 🔐 Auth Token (Taken from FetchData.tsx)
+  useEffect(() => {
+    const getAccessToken = async () => {
+      const salesforceUrl = 'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/oauth2/token';
+      const clientId = '3MVG9BBZP0d0A9KAcJnBKSzCfrRE_gMs1F.S7Uw0j_NByrWXPE6QjuPbeOqXjD7ud8_N3h5OFhGobUpSI.nRR';
+      const clientSecret = 'B36DBB1474A5226DEE9C3696BA1080A63AD857EBF1735E4816D7931E8EA79A6C';
+
+      const params = new URLSearchParams();
+      params.append('grant_type', 'client_credentials');
+      params.append('client_id', clientId);
+      params.append('client_secret', clientSecret);
+
+      try {
+        const response = await axios.post(salesforceUrl, params, {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        });
+        setAccessToken(response.data.access_token);
+        console.log('✅ Access Token:', response.data.access_token);
+      } catch (err: any) {
+        console.error('❌ Failed to fetch token:', err);
+        toast.error('Failed to authenticate with Salesforce');
+      }
+    };
+    getAccessToken();
+  }, []);
+
   const updateAuditItem = (id: string, field: keyof AuditItem, value: any) => {
-    setAuditItems(prev => prev.map(item => 
-      item.id === id ? { ...item, [field]: value } : item
-    ));
+    setAuditItems(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
   const handlePhotoUpload = (id: string, file: File) => {
@@ -71,15 +68,50 @@ const Audit = () => {
     toast.success('Photo uploaded successfully');
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const incomplete = auditItems.filter(item => item.answer === null);
     if (incomplete.length > 0) {
       toast.error('Please complete all audit items');
       return;
     }
 
-    setIsSubmitted(true);
-    toast.success('Daily audit submitted successfully!');
+    if (!accessToken) {
+      toast.error('No access token found');
+      return;
+    }
+
+    try {
+      const payload = {
+        StoreCleaned__c: auditItems.find(i => i.id === 'cleaning')?.answer,
+        StoreCleanedComment__c: auditItems.find(i => i.id === 'cleaning')?.comments,
+        FloorMoppingDone__c: auditItems.find(i => i.id === 'mopping')?.answer,
+        FloorMoppingComments__c: auditItems.find(i => i.id === 'mopping')?.comments,
+        StoreOpenedOnTime__c: auditItems.find(i => i.id === 'opening')?.answer,
+        StoreOpenedComments__c: auditItems.find(i => i.id === 'opening')?.comments,
+        Signages_Working__c: auditItems.find(i => i.id === 'signage')?.answer,
+        Signages_Working_Comment__c: auditItems.find(i => i.id === 'signage')?.comments,
+        StockDisplayedProperly__c: auditItems.find(i => i.id === 'stock')?.answer,
+        StockDisplayedComments__c: auditItems.find(i => i.id === 'stock')?.comments,
+      };
+
+      const response = await axios.post(
+        'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/apexrest/createStoreAudit',
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      console.log('✅ Submitted:', response.data);
+      setIsSubmitted(true);
+      toast.success('Audit record created successfully');
+    } catch (err: any) {
+      console.error('❌ Error submitting audit:', err);
+      toast.error('Submission failed');
+    }
   };
 
   const getCompletionPercentage = () => {
@@ -101,14 +133,7 @@ const Audit = () => {
               <p className="text-gray-600 mb-6 leading-relaxed">
                 Your daily audit for {new Date().toLocaleDateString()} has been submitted successfully.
               </p>
-              <Button 
-                onClick={() => setIsSubmitted(false)}
-                variant="outline"
-                className="w-full hover:bg-gray-50 transition-colors"
-                size="lg"
-              >
-                View Submission
-              </Button>
+              <Button onClick={() => setIsSubmitted(false)} variant="outline" className="w-full">View Submission</Button>
             </CardContent>
           </Card>
         </div>
@@ -120,9 +145,7 @@ const Audit = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
       <Header title="Daily Audit" />
-      
       <div className="max-w-md mx-auto p-4 space-y-6">
-        {/* Progress */}
         <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-3">
@@ -130,65 +153,38 @@ const Audit = () => {
               <span className="text-sm font-bold text-primary">{getCompletionPercentage()}%</span>
             </div>
             <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
-              <div 
-                className="bg-gradient-to-r from-primary to-red-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
-                style={{ width: `${getCompletionPercentage()}%` }}
-              ></div>
+              <div className="bg-gradient-to-r from-primary to-red-600 h-3 rounded-full" style={{ width: `${getCompletionPercentage()}%` }}></div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Date */}
-        <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-          <CardContent className="p-6">
-            <Label className="text-sm font-semibold text-gray-900">Audit Date</Label>
-            <p className="text-xl font-bold text-gray-900 mt-2">{new Date(auditDate).toLocaleDateString()}</p>
-          </CardContent>
-        </Card>
-
-        {/* Audit Items */}
         {auditItems.map((item) => (
-          <Card key={item.id} className="border-0 shadow-lg bg-white/90 backdrop-blur-sm hover:shadow-xl transition-all duration-200">
+          <Card key={item.id} className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg text-gray-900">{item.question}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
-              <RadioGroup
-                value={item.answer || ''}
-                onValueChange={(value) => updateAuditItem(item.id, 'answer', value as 'yes' | 'no')}
-              >
-                <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-green-50/50 transition-colors">
+              <RadioGroup value={item.answer || ''} onValueChange={(value) => updateAuditItem(item.id, 'answer', value as 'yes' | 'no')}>
+                <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-green-50/50">
                   <RadioGroupItem value="yes" id={`${item.id}-yes`} />
                   <Label htmlFor={`${item.id}-yes`} className="flex items-center cursor-pointer text-gray-900">
-                    <Check className="h-4 w-4 text-green-600 mr-2" />
-                    <span className="font-medium">Yes</span>
+                    <Check className="h-4 w-4 text-green-600 mr-2" /> Yes
                   </Label>
                 </div>
-                <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-red-50/50 transition-colors">
+                <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-red-50/50">
                   <RadioGroupItem value="no" id={`${item.id}-no`} />
                   <Label htmlFor={`${item.id}-no`} className="flex items-center cursor-pointer text-gray-900">
-                    <X className="h-4 w-4 text-red-600 mr-2" />
-                    <span className="font-medium">No</span>
+                    <X className="h-4 w-4 text-red-600 mr-2" /> No
                   </Label>
                 </div>
               </RadioGroup>
-
               <div>
-                <Label htmlFor={`${item.id}-comments`} className="text-sm font-medium text-gray-900">Comments (Optional)</Label>
-                <Textarea
-                  id={`${item.id}-comments`}
-                  placeholder="Add any additional comments..."
-                  value={item.comments}
-                  onChange={(e) => updateAuditItem(item.id, 'comments', e.target.value)}
-                  className="mt-2 border-gray-200 focus:border-primary/50 focus:ring-primary/20 text-gray-900"
-                />
+                <Label htmlFor={`${item.id}-comments`} className="text-sm font-medium text-gray-900">Comments</Label>
+                <Textarea id={`${item.id}-comments`} placeholder="Add comments..." value={item.comments} onChange={(e) => updateAuditItem(item.id, 'comments', e.target.value)} className="mt-2 border-gray-200" />
               </div>
-
               {item.photoRequired && (
                 <div>
-                  <Label className="text-sm font-medium text-gray-900">
-                    Photo Upload {item.answer === 'no' ? '(Required)' : '(Optional)'}
-                  </Label>
+                  <Label className="text-sm font-medium text-gray-900">Photo Upload</Label>
                   <div className="mt-2">
                     <Button
                       variant="outline"
@@ -203,10 +199,9 @@ const Audit = () => {
                         };
                         input.click();
                       }}
-                      className="w-full hover:bg-gray-50 border-gray-200 text-gray-900"
+                      className="w-full"
                     >
-                      <Camera className="h-4 w-4 mr-2" />
-                      {item.photo ? '✓ Photo Uploaded' : 'Take Photo'}
+                      <Camera className="h-4 w-4 mr-2" /> {item.photo ? '✓ Photo Uploaded' : 'Upload Photo'}
                     </Button>
                   </div>
                 </div>
@@ -215,17 +210,15 @@ const Audit = () => {
           </Card>
         ))}
 
-        {/* Submit Button */}
         <Button
           onClick={handleSubmit}
-          className="w-full bg-gradient-to-r from-primary to-red-600 hover:from-primary/90 hover:to-red-600/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+          className="w-full bg-gradient-to-r from-primary to-red-600 text-white"
           size="lg"
           disabled={getCompletionPercentage() < 100}
         >
           Submit Audit
         </Button>
       </div>
-
       <BottomNavigation />
     </div>
   );
