@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Users, TrendingUp, Clock, CheckCircle } from 'lucide-react';
-import axios from 'axios';
 
 interface Lead {
   id: string;
@@ -19,84 +18,105 @@ interface Lead {
   dateCreated: string;
 }
 
+// Dummy data in JSON format
+const DUMMY_LEADS: Lead[] = [
+  {
+    id: '1',
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john.doe@example.com',
+    phone: '(123) 456-7890',
+    location: 'New York, NY',
+    status: 'New',
+    dateCreated: '2024-01-15T10:30:00Z'
+  },
+  {
+    id: '2',
+    firstName: 'Jane',
+    lastName: 'Smith',
+    email: 'jane.smith@example.com',
+    phone: '(234) 567-8901',
+    location: 'Los Angeles, CA',
+    status: 'Contacted',
+    dateCreated: '2024-01-14T14:20:00Z'
+  },
+  {
+    id: '3',
+    firstName: 'Robert',
+    lastName: 'Johnson',
+    email: 'robert.j@example.com',
+    phone: '(345) 678-9012',
+    location: 'Chicago, IL',
+    status: 'Converted',
+    dateCreated: '2024-01-12T09:15:00Z'
+  },
+  {
+    id: '4',
+    firstName: 'Sarah',
+    lastName: 'Williams',
+    email: 'sarah.w@example.com',
+    phone: '(456) 789-0123',
+    location: 'Houston, TX',
+    status: 'New',
+    dateCreated: '2024-01-16T11:45:00Z'
+  },
+  {
+    id: '5',
+    firstName: 'Michael',
+    lastName: 'Brown',
+    email: 'michael.b@example.com',
+    phone: '(567) 890-1234',
+    location: 'Miami, FL',
+    status: 'Contacted',
+    dateCreated: '2024-01-13T16:30:00Z'
+  },
+  {
+    id: '6',
+    firstName: 'Emily',
+    lastName: 'Davis',
+    email: 'emily.d@example.com',
+    phone: '(678) 901-2345',
+    location: 'Seattle, WA',
+    status: 'Converted',
+    dateCreated: '2024-01-10T13:10:00Z'
+  },
+  {
+    id: '7',
+    firstName: 'David',
+    lastName: 'Miller',
+    email: 'david.m@example.com',
+    phone: '(789) 012-3456',
+    location: 'Boston, MA',
+    status: 'New',
+    dateCreated: '2024-01-17T08:25:00Z'
+  },
+  {
+    id: '8',
+    firstName: 'Lisa',
+    lastName: 'Wilson',
+    email: 'lisa.w@example.com',
+    phone: '(890) 123-4567',
+    location: 'Denver, CO',
+    status: 'Contacted',
+    dateCreated: '2024-01-11T15:40:00Z'
+  }
+];
+
 const Leads = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<'all' | 'new' | 'contacted' | 'converted'>('all');
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [leads, setLeads] = useState<Lead[]>(DUMMY_LEADS);
 
-  // Token Fetcher
-  const getAccessToken = async () => {
-    const tokenUrl = 'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/oauth2/token';
-    const clientId = '3MVG9BBZP0d0A9KAcJnBKSzCfrRE_gMs1F.S7Uw0j_NByrWXPE6QjuPbeOqXjD7ud8_N3h5OFhGobUpSI.nRR';
-    const clientSecret = 'B36DBB1474A5226DEE9C3696BA1080A63AD857EBF1735E4816D7931E8EA79A6C';
-
-    const params = new URLSearchParams();
-    params.append('grant_type', 'client_credentials');
-    params.append('client_id', clientId);
-    params.append('client_secret', clientSecret);
-
-    try {
-      const res = await axios.post(tokenUrl, params, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      });
-      setAccessToken(res.data.access_token);
-      console.log('✅ Access Token:', res.data.access_token);
-    } catch (error) {
-      console.error('❌ Token Error:', error);
-    }
-  };
-
-  // Lead Fetcher
-  const fetchLeads = async (token: string) => {
-    try {
-      const queryUrl =
-        "https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/data/v62.0/query?q=" +
-        "SELECT+Id,FirstName,LastName,Email,Phone,Status,CreatedDate,Location__c+FROM+Lead+WHERE+Location__c+!=+null";
-
-      const res = await axios.get(queryUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      interface SalesforceLeadRecord {
-        Id: string;
-        FirstName?: string;
-        LastName?: string;
-        Email?: string;
-        Phone?: string;
-        Location__c?: string;
-        Status?: string;
-        CreatedDate?: string;
-      }
-
-      const sfLeads: Lead[] = res.data.records.map((l: SalesforceLeadRecord) => ({
-        id: l.Id,
-        firstName: l.FirstName || '',
-        lastName: l.LastName || '',
-        email: l.Email || '',
-        phone: l.Phone || '',
-        location: l.Location__c || '',
-        status: l.Status || 'New',
-        dateCreated: l.CreatedDate || '',
-      }));
-
-      setLeads(sfLeads);
-      console.log('📦 Leads:', sfLeads);
-    } catch (error) {
-      console.error('❌ Error fetching leads:', error);
-    }
-  };
-
+  // Simulate API call with delay
   useEffect(() => {
-    getAccessToken();
+    const fetchLeads = async () => {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setLeads(DUMMY_LEADS);
+    };
+    
+    fetchLeads();
   }, []);
-
-  useEffect(() => {
-    if (accessToken) fetchLeads(accessToken);
-  }, [accessToken]);
 
   const filteredLeads = leads.filter(lead => {
     if (filter === 'new') return lead.status === 'New';
@@ -136,25 +156,24 @@ const Leads = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
       <div className="pt-6 pb-2">
         <div className="flex items-center justify-center gap-2 relative left-[-80px]">
-    <button
-      onClick={() => navigate('/')}
-      className="text-gray-700 hover:text-gray-900"
-      aria-label="Go back"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
-    <h1 className="text-xl font-bold text-gray-900">Lead Management</h1>
-  </div>
-</div>
-
+          <button
+            onClick={() => navigate('/')}
+            className="text-gray-700 hover:text-gray-900"
+            aria-label="Go back"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h1 className="text-xl font-bold text-gray-900">Lead Management</h1>
+        </div>
+      </div>
 
       <div className="max-w-md mx-auto p-4 space-y-6">
         {/* Stats Cards */}
