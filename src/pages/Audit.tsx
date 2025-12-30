@@ -1,7 +1,4 @@
-// ✅ Full Updated: Audit.tsx with Salesforce Record Creation and Auth Token Integration
-
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,8 +18,30 @@ interface AuditItem {
   photo?: File;
 }
 
+// Dummy audit data in JSON format
+const dummyAuditData = {
+  auditId: 'AUDIT-001',
+  storeId: 'STORE-123',
+  storeName: 'Downtown Location',
+  auditDate: new Date().toISOString().split('T')[0],
+  auditor: 'John Doe',
+  status: 'completed',
+  items: [
+    { id: 'cleaning', question: 'Store cleaned?', answer: 'yes', comments: 'Store was thoroughly cleaned', photoRequired: true },
+    { id: 'mopping', question: 'Floor mopping done?', answer: 'yes', comments: 'Floors mopped and dried', photoRequired: true },
+    { id: 'opening', question: 'Store opened on time?', answer: 'yes', comments: 'Opened at 8:00 AM sharp', photoRequired: false },
+    { id: 'signage', question: 'Signages working?', answer: 'no', comments: 'One sign needs replacement', photoRequired: true },
+    { id: 'stock', question: 'Stock displayed properly?', answer: 'yes', comments: 'All products neatly arranged', photoRequired: true }
+  ],
+  summary: {
+    totalItems: 5,
+    completedItems: 5,
+    score: '90%',
+    issuesFound: 1
+  }
+};
+
 const Audit = () => {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [auditDate] = useState(new Date().toISOString().split('T')[0]);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [auditItems, setAuditItems] = useState<AuditItem[]>([
@@ -32,32 +51,6 @@ const Audit = () => {
     { id: 'signage', question: 'Signages working?', answer: null, comments: '', photoRequired: true },
     { id: 'stock', question: 'Stock displayed properly?', answer: null, comments: '', photoRequired: true }
   ]);
-
-  // 🔐 Auth Token (Taken from FetchData.tsx)
-  useEffect(() => {
-    const getAccessToken = async () => {
-      const salesforceUrl = 'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/oauth2/token';
-      const clientId = '3MVG9BBZP0d0A9KAcJnBKSzCfrRE_gMs1F.S7Uw0j_NByrWXPE6QjuPbeOqXjD7ud8_N3h5OFhGobUpSI.nRR';
-      const clientSecret = 'B36DBB1474A5226DEE9C3696BA1080A63AD857EBF1735E4816D7931E8EA79A6C';
-
-      const params = new URLSearchParams();
-      params.append('grant_type', 'client_credentials');
-      params.append('client_id', clientId);
-      params.append('client_secret', clientSecret);
-
-      try {
-        const response = await axios.post(salesforceUrl, params, {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        });
-        setAccessToken(response.data.access_token);
-        console.log('✅ Access Token:', response.data.access_token);
-      } catch (err: any) {
-        console.error('❌ Failed to fetch token:', err);
-        toast.error('Failed to authenticate with Salesforce');
-      }
-    };
-    getAccessToken();
-  }, []);
 
   const updateAuditItem = (id: string, field: keyof AuditItem, value: any) => {
     setAuditItems(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
@@ -75,42 +68,34 @@ const Audit = () => {
       return;
     }
 
-    if (!accessToken) {
-      toast.error('No access token found');
-      return;
-    }
-
     try {
-      const payload = {
-        StoreCleaned__c: auditItems.find(i => i.id === 'cleaning')?.answer,
-        StoreCleanedComment__c: auditItems.find(i => i.id === 'cleaning')?.comments,
-        FloorMoppingDone__c: auditItems.find(i => i.id === 'mopping')?.answer,
-        FloorMoppingComments__c: auditItems.find(i => i.id === 'mopping')?.comments,
-        StoreOpenedOnTime__c: auditItems.find(i => i.id === 'opening')?.answer,
-        StoreOpenedComments__c: auditItems.find(i => i.id === 'opening')?.comments,
-        Signages_Working__c: auditItems.find(i => i.id === 'signage')?.answer,
-        Signages_Working_Comment__c: auditItems.find(i => i.id === 'signage')?.comments,
-        StockDisplayedProperly__c: auditItems.find(i => i.id === 'stock')?.answer,
-        StockDisplayedComments__c: auditItems.find(i => i.id === 'stock')?.comments,
+      // Create dummy submission payload
+      const dummyPayload = {
+        ...dummyAuditData,
+        submittedAt: new Date().toISOString(),
+        responses: auditItems.map(item => ({
+          id: item.id,
+          answer: item.answer,
+          comments: item.comments,
+          hasPhoto: !!item.photo
+        }))
       };
 
-      const response = await axios.post(
-        'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/apexrest/createStoreAudit',
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      console.log('✅ Submitted:', response.data);
+      // Simulate API call with timeout
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      console.log('✅ Audit submitted with dummy data:', JSON.stringify(dummyPayload, null, 2));
+      
+      // Show success message
+      toast.success('Audit submitted successfully with dummy data');
       setIsSubmitted(true);
-      toast.success('Audit record created successfully');
+      
     } catch (err: any) {
       console.error('❌ Error submitting audit:', err);
-      toast.error('Submission failed');
+      toast.error('Submission failed - using dummy data instead');
+      
+      // Fallback: still mark as submitted for demo purposes
+      setIsSubmitted(true);
     }
   };
 
@@ -130,10 +115,24 @@ const Audit = () => {
                 <Check className="h-10 w-10 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Audit Completed!</h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
+              <p className="text-gray-600 mb-4 leading-relaxed">
                 Your daily audit for {new Date().toLocaleDateString()} has been submitted successfully.
               </p>
-              <Button onClick={() => setIsSubmitted(false)} variant="outline" className="w-full">View Submission</Button>
+              <div className="bg-gray-50 p-4 rounded-lg mb-6 text-left">
+                <h4 className="font-semibold text-gray-900 mb-2">Dummy Data Generated:</h4>
+                <pre className="text-xs bg-gray-100 p-3 rounded overflow-auto">
+                  {JSON.stringify({
+                    auditId: 'AUDIT-' + Math.floor(Math.random() * 1000),
+                    storeId: 'STORE-' + Math.floor(Math.random() * 100),
+                    timestamp: new Date().toISOString(),
+                    itemsCompleted: auditItems.length,
+                    status: 'submitted'
+                  }, null, 2)}
+                </pre>
+              </div>
+              <Button onClick={() => setIsSubmitted(false)} variant="outline" className="w-full">
+                View Submission
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -153,7 +152,10 @@ const Audit = () => {
               <span className="text-sm font-bold text-primary">{getCompletionPercentage()}%</span>
             </div>
             <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
-              <div className="bg-gradient-to-r from-primary to-red-600 h-3 rounded-full" style={{ width: `${getCompletionPercentage()}%` }}></div>
+              <div 
+                className="bg-gradient-to-r from-primary to-red-600 h-3 rounded-full" 
+                style={{ width: `${getCompletionPercentage()}%` }}
+              ></div>
             </div>
           </CardContent>
         </Card>
@@ -164,7 +166,10 @@ const Audit = () => {
               <CardTitle className="text-lg text-gray-900">{item.question}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
-              <RadioGroup value={item.answer || ''} onValueChange={(value) => updateAuditItem(item.id, 'answer', value as 'yes' | 'no')}>
+              <RadioGroup 
+                value={item.answer || ''} 
+                onValueChange={(value) => updateAuditItem(item.id, 'answer', value as 'yes' | 'no')}
+              >
                 <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-green-50/50">
                   <RadioGroupItem value="yes" id={`${item.id}-yes`} />
                   <Label htmlFor={`${item.id}-yes`} className="flex items-center cursor-pointer text-gray-900">
@@ -179,8 +184,16 @@ const Audit = () => {
                 </div>
               </RadioGroup>
               <div>
-                <Label htmlFor={`${item.id}-comments`} className="text-sm font-medium text-gray-900">Comments</Label>
-                <Textarea id={`${item.id}-comments`} placeholder="Add comments..." value={item.comments} onChange={(e) => updateAuditItem(item.id, 'comments', e.target.value)} className="mt-2 border-gray-200" />
+                <Label htmlFor={`${item.id}-comments`} className="text-sm font-medium text-gray-900">
+                  Comments
+                </Label>
+                <Textarea 
+                  id={`${item.id}-comments`} 
+                  placeholder="Add comments..." 
+                  value={item.comments} 
+                  onChange={(e) => updateAuditItem(item.id, 'comments', e.target.value)} 
+                  className="mt-2 border-gray-200" 
+                />
               </div>
               {item.photoRequired && (
                 <div>
@@ -201,7 +214,8 @@ const Audit = () => {
                       }}
                       className="w-full"
                     >
-                      <Camera className="h-4 w-4 mr-2" /> {item.photo ? '✓ Photo Uploaded' : 'Upload Photo'}
+                      <Camera className="h-4 w-4 mr-2" /> 
+                      {item.photo ? '✓ Photo Uploaded' : 'Upload Photo'}
                     </Button>
                   </div>
                 </div>
