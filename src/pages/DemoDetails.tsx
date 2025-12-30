@@ -2,9 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-// API
-import axios from 'axios';
-
 // Custom UI Components
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
@@ -36,92 +33,106 @@ interface OpportunityData {
   };
 }
 
+// --- Dummy Data ---
+const DUMMY_OPPORTUNITIES: OpportunityData[] = [
+  {
+    Id: '1',
+    Name: 'Acme Corp Demo',
+    StageName: 'Demo Scheduled',
+    ScheduledDateTime__c: '2024-01-15T14:30:00Z',
+    Expected_Discount__c: 15,
+    Demo_Status__c: 'Scheduled',
+    Account: {
+      Phone: '+1 (555) 123-4567'
+    },
+    Converted_Lead__r: {
+      ProductInterest__c: 'Enterprise Suite'
+    }
+  },
+  {
+    Id: '2',
+    Name: 'TechStart Inc Demo',
+    StageName: 'Prospecting',
+    ScheduledDateTime__c: '2024-01-20T10:00:00Z',
+    Expected_Discount__c: 10,
+    Demo_Status__c: 'Scheduled',
+    Account: {
+      Phone: '+1 (555) 987-6543'
+    },
+    Converted_Lead__r: {
+      ProductInterest__c: 'Basic Package'
+    }
+  },
+  {
+    Id: '3',
+    Name: 'Global Solutions Demo',
+    StageName: 'Negotiation',
+    ScheduledDateTime__c: '2024-01-25T16:45:00Z',
+    Expected_Discount__c: 20,
+    Demo_Status__c: 'In Progress',
+    Account: {
+      Phone: '+1 (555) 456-7890'
+    },
+    Converted_Lead__r: {
+      ProductInterest__c: 'Premium Package'
+    }
+  }
+];
+
 // --- Main Component ---
 const DemoDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
-  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [opportunity, setOpportunity] = useState<OpportunityData | null>(null);
   const [managerApproval, setManagerApproval] = useState<'Pending' | 'Approved' | 'Rejected'>('Pending');
   const [managerComment, setManagerComment] = useState('');
   const [demoStatus, setDemoStatus] = useState<string>('Scheduled');
   const [expectedDiscount, setExpectedDiscount] = useState<string>('');
 
-  const fetchAccessToken = async () => {
-    const params = new URLSearchParams();
-    params.append('grant_type', 'client_credentials');
-    params.append('client_id', '3MVG9BBZP0d0A9KAcJnBKSzCfrRE_gMs1F.S7Uw0j_NByrWXPE6QjuPbeOqXjD7ud8_N3h5OFhGobUpSI.nRR');
-    params.append('client_secret', 'B36DBB1474A5226DEE9C3696BA1080A63AD857EBF1735E4816D7931E8EA79A6C');
+  const fetchOpportunityDetails = () => {
+    if (!id) return;
 
-    const res = await axios.post(
-      'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/oauth2/token',
-      params,
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-    );
-
-    setAccessToken(res.data.access_token);
-  };
-
-  const fetchOpportunityDetails = async () => {
-    if (!accessToken || !id) return;
-
-    const query = `
-      SELECT Id, Name, StageName, ScheduledDateTime__c, Account.Phone, 
-             Converted_Lead__r.ProductInterest__c, Expected_Discount__c, Demo_Status__c 
-      FROM Opportunity 
-      WHERE Id = '${id}'`;
-
-    const url = `https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/data/v62.0/query?q=${encodeURIComponent(query)}`;
-
-    const res = await axios.get(url, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-
-    const data: OpportunityData = res.data.records[0];
-    setOpportunity(data);
-    setDemoStatus(data.Demo_Status__c || 'Scheduled');
-    setExpectedDiscount(data.Expected_Discount__c?.toString() || '');
-  };
-
-const handleMarkCompleted = async () => {
-  if (!id || !accessToken) return;
-
-  try {
-    await axios.post(
-      'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/apexrest/updateDemoStatus',
-      {
-        opportunityId: id,
-        managerApproved: managerApproval,
-        managerComments: managerComment,
-        demoStatus: demoStatus,
-        expectedDiscount: parseFloat(expectedDiscount),
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
+    // Find opportunity from dummy data
+    const foundOpportunity = DUMMY_OPPORTUNITIES.find(opp => opp.Id === id);
+    
+    if (foundOpportunity) {
+      setOpportunity(foundOpportunity);
+      setDemoStatus(foundOpportunity.Demo_Status__c || 'Scheduled');
+      setExpectedDiscount(foundOpportunity.Expected_Discount__c?.toString() || '');
+    } else {
+      // Fallback dummy data if ID not found
+      setOpportunity({
+        Id: id,
+        Name: 'Demo Request',
+        StageName: 'Scheduled',
+        ScheduledDateTime__c: new Date().toISOString(),
+        Expected_Discount__c: 0,
+        Demo_Status__c: 'Scheduled',
+        Account: {
+          Phone: '+1 (555) 000-0000'
         },
-      }
-    );
+        Converted_Lead__r: {
+          ProductInterest__c: 'Not Specified'
+        }
+      });
+    }
+  };
 
-    toast.success('Demo marked as completed and updated!');
-    // ⬅️ Redirect after success
-    navigate('/demo-requests');
-  } catch (err) {
-    console.error(err);
-    toast.error('Failed to update opportunity.');
-  }
-};
+  const handleMarkCompleted = () => {
+    if (!id) return;
 
+    // Simulate API call delay
+    setTimeout(() => {
+      toast.success('Demo marked as completed and updated!');
+      // Redirect after success
+      navigate('/demo-requests');
+    }, 500);
+  };
 
   useEffect(() => {
-    fetchAccessToken();
-  }, []);
-
-  useEffect(() => {
-    if (accessToken) fetchOpportunityDetails();
-  }, [accessToken]);
+    fetchOpportunityDetails();
+  }, [id]);
 
   const formattedDateTime = opportunity?.ScheduledDateTime__c
     ? new Date(opportunity.ScheduledDateTime__c).toLocaleString()
