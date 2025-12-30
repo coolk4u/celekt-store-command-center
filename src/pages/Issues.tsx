@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,69 +21,73 @@ const Issues = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');
   const [issues, setIssues] = useState<Issue[]>([]);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const getAccessToken = async () => {
-      const tokenUrl = 'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/oauth2/token';
-      const clientId = '3MVG9BBZP0d0A9KAcJnBKSzCfrRE_gMs1F.S7Uw0j_NByrWXPE6QjuPbeOqXjD7ud8_N3h5OFhGobUpSI.nRR';
-      const clientSecret = 'B36DBB1474A5226DEE9C3696BA1080A63AD857EBF1735E4816D7931E8EA79A6C';
-
-      const params = new URLSearchParams();
-      params.append('grant_type', 'client_credentials');
-      params.append('client_id', clientId);
-      params.append('client_secret', clientSecret);
-
-      try {
-        const response = await axios.post(tokenUrl, params, {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        });
-        setAccessToken(response.data.access_token);
-      } catch (error) {
-        console.error('Error fetching access token:', error);
+    // Dummy data in JSON format
+    const dummyIssues: Issue[] = [
+      {
+        id: '1',
+        category: 'Technical',
+        title: 'Login not working',
+        description: 'Unable to login to the application with correct credentials. Error message shows "Invalid credentials" even with correct password.',
+        status: 'Open',
+        priority: 'High',
+        dateRaised: '2024-01-15T10:30:00Z'
+      },
+      {
+        id: '2',
+        category: 'Billing',
+        title: 'Invoice discrepancy',
+        description: 'Last months invoice shows incorrect charges for premium features that were not used.',
+        status: 'In Progress',
+        priority: 'Medium',
+        dateRaised: '2024-01-10T14:45:00Z'
+      },
+      {
+        id: '3',
+        category: 'Feature Request',
+        title: 'Dark mode support',
+        description: 'Request for dark mode theme to reduce eye strain during nighttime usage.',
+        status: 'Open',
+        priority: 'Low',
+        dateRaised: '2024-01-05T09:15:00Z'
+      },
+      {
+        id: '4',
+        category: 'Bug Report',
+        title: 'Mobile app crashing',
+        description: 'Application crashes when switching between tabs on iOS version 17.2.',
+        status: 'Closed',
+        priority: 'High',
+        dateRaised: '2023-12-20T16:20:00Z'
+      },
+      {
+        id: '5',
+        category: 'Account',
+        title: 'Profile picture not updating',
+        description: 'Uploaded new profile picture but it still shows the old one across the platform.',
+        status: 'In Progress',
+        priority: 'Medium',
+        dateRaised: '2024-01-12T11:10:00Z'
+      },
+      {
+        id: '6',
+        category: 'Performance',
+        title: 'Slow loading times',
+        description: 'Dashboard takes over 10 seconds to load with 50+ projects. Performance degradation noticed in last update.',
+        status: 'Open',
+        priority: 'High',
+        dateRaised: '2024-01-18T13:25:00Z'
       }
-    };
+    ];
 
-    getAccessToken();
+    // Simulate API delay
+    const timer = setTimeout(() => {
+      setIssues(dummyIssues);
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    if (!accessToken) return;
-
-    const fetchCases = async () => {
-      const query = `
-        SELECT Id, Subject, Description, Status, Priority, CreatedDate, Category__c
-        FROM Case WHERE Status != null AND Category__c != null
-      `.replace(/\s+/g, '+');
-
-      const url = `https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/data/v62.0/query?q=${query}`;
-
-      try {
-        const response = await axios.get(url, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const mapped: Issue[] = response.data.records.map((record: any) => ({
-          id: record.Id,
-          category: record.Category__c || 'General',
-          title: record.Subject || 'No Title',
-          description: record.Description || 'No Description',
-          status: record.Status || 'Open',
-          priority: record.Priority || 'Medium',
-          dateRaised: record.CreatedDate,
-        }));
-
-        setIssues(mapped);
-      } catch (error) {
-        console.error('Error fetching cases:', error);
-      }
-    };
-
-    fetchCases();
-  }, [accessToken]);
 
   const filteredIssues = issues.filter(issue => {
     if (filter === 'open') return issue.status !== 'Closed';
