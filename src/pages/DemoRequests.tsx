@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent } from '@/components/ui/card';
@@ -35,61 +34,95 @@ const DemoRequests = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<'all' | 'scheduled' | 'completed'>('all');
   const [demos, setDemos] = useState<OpportunityRecord[]>([]);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  // Get Access Token
+  // Dummy data in JSON format
+  const dummyDemoData: OpportunityRecord[] = [
+    {
+      Id: '1',
+      Name: 'Acme Corporation Demo',
+      Account: {
+        Phone: '+1 (555) 123-4567'
+      },
+      ScheduledDateTime__c: '2024-12-15T14:30:00Z',
+      StageName: 'Product Demo Scheduled',
+      Manager_Approved__c: 'Approved',
+      Expected_Discount__c: 15,
+      Manager_Comments__c: 'High potential client',
+      Converted_Lead__r: {
+        ProductInterest__c: 'Cloud Storage Solutions'
+      }
+    },
+    {
+      Id: '2',
+      Name: 'TechStart Inc. Presentation',
+      Account: {
+        Phone: '+1 (555) 987-6543'
+      },
+      ScheduledDateTime__c: '2024-12-18T10:00:00Z',
+      StageName: 'Product Demo Scheduled',
+      Manager_Approved__c: 'Pending',
+      Expected_Discount__c: 10,
+      Manager_Comments__c: 'Needs technical validation',
+      Converted_Lead__r: {
+        ProductInterest__c: 'Data Analytics Platform'
+      }
+    },
+    {
+      Id: '3',
+      Name: 'Global Retail Demo',
+      Account: {
+        Phone: '+1 (555) 456-7890'
+      },
+      ScheduledDateTime__c: '2024-12-10T13:00:00Z',
+      StageName: 'Completed',
+      Manager_Approved__c: 'Approved',
+      Expected_Discount__c: 20,
+      Manager_Comments__c: 'Successful demo, follow-up required',
+      Converted_Lead__r: {
+        ProductInterest__c: 'E-commerce Integration'
+      }
+    },
+    {
+      Id: '4',
+      Name: 'Healthcare Solutions Review',
+      Account: {
+        Phone: '+1 (555) 234-5678'
+      },
+      ScheduledDateTime__c: '2024-12-20T09:30:00Z',
+      StageName: 'Product Demo Scheduled',
+      Manager_Approved__c: 'Rejected',
+      Expected_Discount__c: 25,
+      Manager_Comments__c: 'Discount too high for budget',
+      Converted_Lead__r: {
+        ProductInterest__c: 'HIPAA Compliant Storage'
+      }
+    },
+    {
+      Id: '5',
+      Name: 'Education Sector Demo',
+      Account: {
+        Phone: '+1 (555) 876-5432'
+      },
+      ScheduledDateTime__c: '2024-12-12T11:00:00Z',
+      StageName: 'Completed',
+      Manager_Approved__c: 'Approved',
+      Expected_Discount__c: 30,
+      Manager_Comments__c: 'Bulk license agreement pending',
+      Converted_Lead__r: {
+        ProductInterest__c: 'Collaboration Tools'
+      }
+    }
+  ];
+
+  // Load dummy data
   useEffect(() => {
-    const getAccessToken = async () => {
-      const params = new URLSearchParams();
-      params.append('grant_type', 'client_credentials');
-      params.append('client_id', '3MVG9BBZP0d0A9KAcJnBKSzCfrRE_gMs1F.S7Uw0j_NByrWXPE6QjuPbeOqXjD7ud8_N3h5OFhGobUpSI.nRR');
-      params.append('client_secret', 'B36DBB1474A5226DEE9C3696BA1080A63AD857EBF1735E4816D7931E8EA79A6C');
+    // Simulate API loading delay
+    const timer = setTimeout(() => {
+      setDemos(dummyDemoData);
+    }, 500);
 
-      const res = await axios.post(
-        'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/oauth2/token',
-        params,
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-      );
-
-      setAccessToken(res.data.access_token);
-    };
-
-    getAccessToken();
+    return () => clearTimeout(timer);
   }, []);
-
-  // Fetch Demo Requests
-  useEffect(() => {
-    if (!accessToken) return;
-
-    const fetchDemos = async () => {
-      const query = `
-        SELECT 
-          Id,
-          Name,
-          Account.Phone,
-          ScheduledDateTime__c,
-          StageName,
-          Manager_Approved__c,
-          Expected_Discount__c,
-          Manager_Comments__c,
-          Converted_Lead__r.ProductInterest__c
-        FROM Opportunity
-        WHERE AccountId != NULL AND Converted_Lead__c != NULL AND StageName = 'Product Demo Scheduled'
-      `.replace(/\s+/g, '+');
-
-      const url = `https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/data/v62.0/query?q=${query}`;
-      const res = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      setDemos(res.data.records || []);
-    };
-
-    fetchDemos();
-  }, [accessToken]);
 
   const filteredDemos = demos.filter((demo) => {
     if (filter === 'scheduled') return demo.StageName === 'Product Demo Scheduled';
@@ -135,16 +168,16 @@ const DemoRequests = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-teal-50/50 pb-20">
       {/* 🔙 Back Button in Header */}
-  <div className="w-full flex justify-center mt-4 mb-6">
-    <div
-      className="flex items-center gap-2 cursor-pointer"
-      onClick={() => navigate('/')}
-      style={{ transform: 'translateX(-90px)' }} // Shift slightly left
-    >
-      <ArrowLeft className="h-5 w-5 text-gray-800" />
-      <h1 className="text-xl font-semibold text-gray-800">Demo Requests</h1>
-    </div>
-  </div>
+      <div className="w-full flex justify-center mt-4 mb-6">
+        <div
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => navigate('/')}
+          style={{ transform: 'translateX(-90px)' }}
+        >
+          <ArrowLeft className="h-5 w-5 text-gray-800" />
+          <h1 className="text-xl font-semibold text-gray-800">Demo Requests</h1>
+        </div>
+      </div>
 
       <div className="max-w-md mx-auto p-4 space-y-6">
         {/* Stats */}

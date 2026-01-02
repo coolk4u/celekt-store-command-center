@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,9 +11,36 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { AlertTriangle, ArrowLeft, User, Store } from 'lucide-react';
 
+// Dummy data for submission
+const DUMMY_ISSUES = [
+  {
+    id: '1',
+    type: 'customer',
+    category: 'Battery Drain',
+    title: 'Phone battery drains too fast',
+    description: 'Customer complains that phone battery lasts only 2 hours',
+    priority: 'High',
+    customerName: 'John Doe',
+    customerPhone: '+1234567890',
+    deviceModel: 'iPhone 14 Pro',
+    issueType: 'Battery Drain',
+    status: 'Open',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: '2',
+    type: 'store',
+    category: 'Air Conditioning',
+    title: 'AC not working in store',
+    description: 'Main AC unit in electronics section is not cooling',
+    priority: 'Medium',
+    status: 'In Progress',
+    createdAt: new Date().toISOString()
+  }
+];
+
 const RaiseIssue = () => {
   const navigate = useNavigate();
-  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [requestType, setRequestType] = useState<'customer' | 'store' | null>(null);
   const [formData, setFormData] = useState({
     category: '',
@@ -49,29 +75,6 @@ const RaiseIssue = () => {
     'Other'
   ];
 
-  const getAccessToken = async () => {
-    const params = new URLSearchParams();
-    params.append('grant_type', 'client_credentials');
-    params.append('client_id', '3MVG9BBZP0d0A9KAcJnBKSzCfrRE_gMs1F.S7Uw0j_NByrWXPE6QjuPbeOqXjD7ud8_N3h5OFhGobUpSI.nRR');
-    params.append('client_secret', 'B36DBB1474A5226DEE9C3696BA1080A63AD857EBF1735E4816D7931E8EA79A6C');
-
-    try {
-      const res = await axios.post(
-        'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/oauth2/token',
-        params,
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-      );
-      setAccessToken(res.data.access_token);
-    } catch (err) {
-      console.error('Access token error:', err);
-      toast.error('Authentication failed');
-    }
-  };
-
-  useEffect(() => {
-    getAccessToken();
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -85,46 +88,42 @@ const RaiseIssue = () => {
       return;
     }
 
-    const caseData: any = {
-      Subject: formData.title,
-      Description: formData.description,
-      Priority: formData.priority,
-      RecordTypeId:
-        requestType === 'customer'
-          ? '012fI0000019obJQAQ'
-          : '012fI0000019ocvQAA',
-      Category__c: formData.category,
+    // Create dummy issue object
+    const newIssue = {
+      id: `issue-${Date.now()}`,
+      type: requestType,
+      category: formData.category,
+      title: formData.title,
+      description: formData.description,
+      priority: formData.priority,
+      customerName: formData.customerName || null,
+      customerPhone: formData.customerPhone || null,
+      deviceModel: formData.deviceModel || null,
+      issueType: formData.issueType || null,
+      status: 'Open',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
 
-    if (requestType === 'customer') {
-      caseData.Contact = {
-        Name: formData.customerName,
-        Phone: formData.customerPhone
-      };
-      caseData.Device_Model__c = formData.deviceModel;
-      caseData.Issue_Type__c = formData.issueType;
-    }
+    // In a real app, you would send this to your backend API
+    // For now, we'll just log it and show success message
+    console.log('Submitting issue:', newIssue);
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    try {
-      await axios.post(
-        'https://4cecloudlabscustomerdemos-dev-ed.develop.my.salesforce.com/services/apexrest/CreateIssueCase',
-        caseData,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+    // Add to local storage for persistence (optional)
+    const existingIssues = JSON.parse(localStorage.getItem('dummy-issues') || '[]');
+    const updatedIssues = [...existingIssues, newIssue];
+    localStorage.setItem('dummy-issues', JSON.stringify(updatedIssues));
 
-      toast.success(
-        `${requestType === 'customer' ? 'Customer' : 'Store'} issue submitted successfully!`
-      );
-      navigate('/issues');
-    } catch (err) {
-      console.error('Submit error:', err);
-      toast.error('Error submitting issue');
-    }
+    toast.success(
+      `${requestType === 'customer' ? 'Customer' : 'Store'} issue submitted successfully!`
+    );
+    
+    // Reset form and navigate
+    resetForm();
+    navigate('/issues');
   };
 
   const resetForm = () => {
@@ -217,7 +216,7 @@ const RaiseIssue = () => {
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label>Category</Label>
+                <Label>Category *</Label>
                 <Select
                   onValueChange={(value) =>
                     setFormData({ ...formData, category: value })
@@ -241,7 +240,7 @@ const RaiseIssue = () => {
               </div>
 
               <div>
-                <Label>Title</Label>
+                <Label>Title *</Label>
                 <Input
                   placeholder="Issue Title"
                   value={formData.title}
@@ -252,7 +251,7 @@ const RaiseIssue = () => {
               </div>
 
               <div>
-                <Label>Description</Label>
+                <Label>Description *</Label>
                 <Textarea
                   placeholder="Describe the issue"
                   value={formData.description}
@@ -262,10 +261,30 @@ const RaiseIssue = () => {
                 />
               </div>
 
+              <div>
+                <Label>Priority</Label>
+                <Select
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, priority: value })
+                  }
+                  value={formData.priority}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Low">Low</SelectItem>
+                    <SelectItem value="Medium">Medium</SelectItem>
+                    <SelectItem value="High">High</SelectItem>
+                    <SelectItem value="Critical">Critical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {requestType === 'customer' && (
                 <>
                   <div>
-                    <Label>Customer Name</Label>
+                    <Label>Customer Name *</Label>
                     <Input
                       placeholder="Customer Name"
                       value={formData.customerName}
@@ -275,7 +294,7 @@ const RaiseIssue = () => {
                     />
                   </div>
                   <div>
-                    <Label>Customer Phone</Label>
+                    <Label>Customer Phone *</Label>
                     <Input
                       placeholder="Phone Number"
                       value={formData.customerPhone}
@@ -293,6 +312,26 @@ const RaiseIssue = () => {
                         setFormData({ ...formData, deviceModel: e.target.value })
                       }
                     />
+                  </div>
+                  <div>
+                    <Label>Issue Type</Label>
+                    <Select
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, issueType: value })
+                      }
+                      value={formData.issueType}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Issue Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {customerIssueTypes.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </>
               )}
